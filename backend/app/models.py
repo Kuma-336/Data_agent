@@ -106,6 +106,48 @@ class QueryResult(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class DataProfile(Base):
+    __tablename__ = "data_profiles"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    asset_kind: Mapped[str] = mapped_column(String(24))
+    asset_id: Mapped[str] = mapped_column(String(36), index=True)
+    table_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    profile: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ChartArtifact(Base):
+    __tablename__ = "chart_artifacts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    chat_id: Mapped[str] = mapped_column(ForeignKey("chats.id"), index=True)
+    query_id: Mapped[str] = mapped_column(ForeignKey("query_results.id"), index=True)
+    spec: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ExportArtifact(Base):
+    __tablename__ = "export_artifacts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    chat_id: Mapped[str] = mapped_column(ForeignKey("chats.id"), index=True)
+    query_id: Mapped[str] = mapped_column(ForeignKey("query_results.id"), index=True)
+    format: Mapped[str] = mapped_column(String(12))
+    storage_path: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ProjectContextDocument(Base):
+    __tablename__ = "project_context_documents"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    name: Mapped[str] = mapped_column(String(120))
+    path: Mapped[str] = mapped_column(String(255))
+    content: Mapped[str] = mapped_column(Text)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class Memory(Base):
     __tablename__ = "memories"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)

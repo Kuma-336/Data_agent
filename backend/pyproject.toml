@@ -19,6 +19,7 @@ dependencies = [
   "sqlglot>=26,<28",
   "openai>=1.54,<2",
   "tiktoken>=0.8,<1",
+  "reportlab>=4.2,<5",
   "dramatiq[redis]>=1.17,<2",
   "redis>=5,<6",
 ]

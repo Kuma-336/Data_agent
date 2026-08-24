@@ -12,13 +12,14 @@ from .db import Base, engine, get_db
 from .migrations import upgrade_schema
 from .dependencies import current_user
 from .errors import ApiError, normalize_error
-from .models import Chat, DataSource, Memory, Message, MessagePart, QueryResult, UploadedFile, User
+from .models import ChartArtifact, Chat, DataProfile, DataSource, ExportArtifact, Memory, Message, MessagePart, ProjectContextDocument, QueryResult, UploadedFile, User
 from .schemas import ChatCreate, ChatMessageInput, DataSourceInput, DataSourceOut, LoginInput, RegisterInput, UserOut
 from .security import create_access_token, decrypt_secret, encrypt_secret, hash_password, verify_password
 from .services.agent import run_agent
 from .services.storage import save_upload
 from .worker import compact_chat, extract_memory
 from .services.conversation import save_parts
+from .services.analytics import create_chart, export_csv, profile_file
 
 app = FastAPI(title="Personal Data Agent", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
@@ -98,6 +99,20 @@ def upload_file(upload: UploadFile = File(...), user: User = Depends(current_use
 @app.get("/files")
 def list_files(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
     return [{"id": item.id, "name": item.original_name, "schema": item.file_schema} for item in db.query(UploadedFile).filter(UploadedFile.user_id == user.id).all()]
+
+
+@app.post("/files/{file_id}/profile")
+def profile_uploaded_file(file_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    file = db.query(UploadedFile).filter(UploadedFile.id == file_id, UploadedFile.user_id == user.id).first()
+    if not file:
+        raise HTTPException(404, "File not found")
+    record = profile_file(db, user, file)
+    return {"id": record.id, "profile": record.profile}
+
+
+@app.get("/assets/profiles")
+def list_profiles(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    return [{"id": item.id, "asset_kind": item.asset_kind, "asset_id": item.asset_id, "profile": item.profile} for item in db.query(DataProfile).filter(DataProfile.user_id == user.id).order_by(DataProfile.created_at.desc()).limit(50).all()]
 
 
 @app.post("/connections", response_model=DataSourceOut)
@@ -226,6 +241,56 @@ def get_query(query_id: str, offset: int = 0, limit: int = 100, user: User = Dep
     if not result:
         raise HTTPException(404, "Query result not found")
     return {"id": result.id, "columns": result.columns, "rows": result.rows[offset:offset + min(limit, settings.max_query_rows)], "sql": result.sql, "source": result.source}
+
+
+@app.post("/charts")
+def create_chart_endpoint(payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    chart = create_chart(db, user, str(payload.get("chat_id", "")), str(payload.get("query_id", "")), payload)
+    return {"id": chart.id, "spec": chart.spec}
+
+
+@app.get("/charts/{chart_id}")
+def get_chart(chart_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    chart = db.query(ChartArtifact).filter(ChartArtifact.id == chart_id, ChartArtifact.user_id == user.id).first()
+    if not chart:
+        raise HTTPException(404, "Chart not found")
+    result = db.query(QueryResult).filter(QueryResult.id == chart.query_id, QueryResult.user_id == user.id).first()
+    return {"id": chart.id, "spec": chart.spec, "rows": result.rows if result else [], "columns": result.columns if result else []}
+
+
+@app.post("/queries/{query_id}/export")
+def export_query(query_id: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    if payload.get("format", "csv") != "csv":
+        raise HTTPException(422, "Only CSV export is currently supported")
+    artifact = export_csv(db, user, str(payload.get("chat_id", "")), query_id)
+    return {"id": artifact.id, "format": artifact.format, "download_url": f"/exports/{artifact.id}"}
+
+
+@app.get("/exports/{export_id}")
+def download_export(export_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import FileResponse
+    artifact = db.query(ExportArtifact).filter(ExportArtifact.id == export_id, ExportArtifact.user_id == user.id).first()
+    if not artifact:
+        raise HTTPException(404, "Export not found")
+    return FileResponse(artifact.storage_path, filename=f"query-{artifact.query_id}.csv", media_type="text/csv")
+
+
+@app.get("/context-documents")
+def list_context_documents(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    return [{"id": item.id, "name": item.name, "path": item.path, "content": item.content, "updated_at": item.updated_at} for item in db.query(ProjectContextDocument).filter(ProjectContextDocument.user_id == user.id).all()]
+
+
+@app.put("/context-documents/{name}")
+def upsert_context_document(name: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    content = str(payload.get("content", ""))[:50_000]
+    document = db.query(ProjectContextDocument).filter(ProjectContextDocument.user_id == user.id, ProjectContextDocument.name == name).first()
+    if not document:
+        document = ProjectContextDocument(user_id=user.id, name=name[:120], path=f"/context/{name[:120]}", content=content)
+        db.add(document)
+    else:
+        document.content = content
+    db.commit(); db.refresh(document)
+    return {"id": document.id, "name": document.name, "content": document.content}
 
 
 @app.get("/memories")
