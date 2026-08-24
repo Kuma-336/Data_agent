@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: data_agent
+      POSTGRES_PASSWORD: data_agent
+      POSTGRES_DB: data_agent
+    volumes: [app_db:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U data_agent -d data_agent"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+  api:
+    build: ./backend
+    env_file: ${DATA_AGENT_ENV_FILE:-.env}
+    environment:
+      DATABASE_URL: postgresql+psycopg://data_agent:data_agent@db:5432/data_agent
+      REDIS_URL: redis://redis:6379/0
+      DATA_DIR: /data
+    ports: ["8000:8000"]
+    volumes: [app_data:/data]
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  worker:
+    build: ./backend
+    command: dramatiq app.worker
+    env_file: ${DATA_AGENT_ENV_FILE:-.env}
+    environment:
+      DATABASE_URL: postgresql+psycopg://data_agent:data_agent@db:5432/data_agent
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+  web:
+    build: ./frontend
+    ports: ["5173:80"]
+    depends_on:
+      api: { condition: service_healthy }
+volumes:
+  app_db:
+  app_data:

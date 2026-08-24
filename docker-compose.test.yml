@@ -1,0 +1,5 @@
+services:
+  api:
+    ports: ["18000:8000"]
+  web:
+    ports: ["15173:80"]

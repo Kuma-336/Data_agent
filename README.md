@@ -1,0 +1,33 @@
+# Personal Data Agent
+
+A small, self-hosted data-analysis agent. It accepts CSV/XLSX files and user-owned PostgreSQL read-only connections, then lets an OpenAI-compatible model inspect data, issue guarded SQL, and return auditable answers.
+
+## Run
+
+1. Copy `.env.example` to `.env` and set `APP_SECRET_KEY`, `FIELD_ENCRYPTION_KEY`, `LLM_API_KEY`, `LLM_BASE_URL`, and `LLM_MODEL`.
+2. Run `docker compose up --build`.
+3. Open `http://localhost:5173`.
+
+If Docker lacks the Compose plugin, run `powershell -ExecutionPolicy Bypass -File scripts/start.ps1` from this directory instead.
+
+The application database is the Compose PostgreSQL service. Any business PostgreSQL connection is configured per user and must use a read-only database account.
+
+## Safety model
+
+- Business SQL accepts one `SELECT` or `WITH` statement only and runs in a read-only transaction.
+- Query output is capped and stored with a user-scoped query id for later display.
+- Data-source passwords are encrypted with the Fernet key in `FIELD_ENCRYPTION_KEY`.
+- Uploaded files and all API resources are scoped to the authenticated user.
+
+This project is inspired by nao's Apache-2.0-licensed tool-schema and agent-loop design, but is a Python implementation with a narrower scope.
+
+## Verification
+
+All release checks use a real DeepSeek request. Set a dedicated billable test key, then run:
+
+```powershell
+$env:DATA_AGENT_TEST_LLM_API_KEY = 'your-test-key'
+powershell -ExecutionPolicy Bypass -File scripts/test-stack.ps1
+```
+
+For a failed runtime request, inspect `docker compose logs -f api`. Configuration errors prevent the API from starting; model authentication errors are returned to the UI as `LLM_AUTH_FAILED` with a remediation action.
