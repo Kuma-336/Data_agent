@@ -25,6 +25,15 @@ The API runs at `http://localhost:8000`; use `/health` and `/ready` for health c
 | `ALLOWED_DB_HOSTS` | Allowed PostgreSQL connection hosts. | `host.docker.internal,localhost` |
 | `MAX_QUERY_ROWS` | Maximum query result rows. | `1000` |
 | `MAX_UPLOAD_MB` | Maximum upload size in MB. | `25` |
+| `MCP_ENABLED` | Enable the external Streamable HTTP MCP endpoint. | `false` |
+| `MCP_SUBAGENT_ENABLED` | Expose the full-agent `ask_data_agent` tool once MCP is enabled. | `true` |
+| `MCP_CONTEXT_ENABLED` | Expose `execute_sql`, `grep`, and `ls` once MCP is enabled. | `true` |
+| `MCP_REPORTS_ENABLED` | Expose report read/create/update/archive tools once MCP is enabled. | `true` |
+| `MCP_TOKEN_TTL_DAYS` | Lifetime of a user-generated MCP bearer token. | `90` |
+
+## MCP integration
+
+Set `MCP_ENABLED=true`, restart the API, and sign in normally. Use `POST /mcp/tokens` to generate a bearer token for that user, then configure Codex with Streamable HTTP URL `http://localhost:8000/mcp` and `Authorization: Bearer <token>`. The endpoint is user-scoped and disabled by default; do not share the token. The available modes match nao's MCP design: full analysis-agent delegation, context and guarded SQL access, and report management. Permanent deletion is not exposed through MCP.
 
 Do not commit `.env` or `.env.test`; Git ignores both files.
 

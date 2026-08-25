@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/0"
     llm_context_window: int = 64_000
     llm_max_output_tokens: int = 4_096
+    # External agents can read user-owned data through MCP; opt in per deployment.
+    mcp_enabled: bool = False
+    mcp_subagent_enabled: bool = True
+    mcp_context_enabled: bool = True
+    mcp_reports_enabled: bool = True
+    mcp_token_ttl_days: int = 90
 
     @model_validator(mode="after")
     def validate_runtime_configuration(self) -> "Settings":

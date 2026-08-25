@@ -26,6 +26,16 @@ def decode_access_token(token: str) -> str:
     return str(jwt.decode(token, settings.app_secret_key, algorithms=[ALGORITHM])["sub"])
 
 
+def create_mcp_token(user_id: str) -> str:
+    """Create a long-lived, bearer-only token for an MCP client."""
+    payload = {"sub": user_id, "aud": "mcp", "exp": datetime.now(timezone.utc) + timedelta(days=settings.mcp_token_ttl_days)}
+    return jwt.encode(payload, settings.app_secret_key, algorithm=ALGORITHM)
+
+
+def decode_mcp_token(token: str) -> str:
+    return str(jwt.decode(token, settings.app_secret_key, algorithms=[ALGORITHM], audience="mcp")["sub"])
+
+
 def encrypt_secret(value: str) -> str:
     return fernet.encrypt(value.encode()).decode()
 

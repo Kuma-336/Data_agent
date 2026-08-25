@@ -10,6 +10,7 @@ from .conversation import load_model_history
 from .memory_manager import active_memories
 from .analytics import create_chart, export_csv, profile_file
 from .skills import load_skill
+from .reports import save_report, serialize_report
 
 ToolEvent = dict[str, object]
 
@@ -25,6 +26,8 @@ TOOL_DEFINITIONS = [
     {"type": "function", "function": {"name": "load_skill", "description": "Load an analysis playbook: excel-handling, data-profiling, postgres-analysis, reporting.", "parameters": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}}},
     {"type": "function", "function": {"name": "list_context", "description": "List user business-rule and data-dictionary documents.", "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {"name": "read_context", "description": "Read one business-rule or data-dictionary document by name.", "parameters": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}}},
+    {"type": "function", "function": {"name": "create_report", "description": "Create a private report from markdown, metric, query_table, chart, or divider blocks that reference existing query_id/chart_id values.", "parameters": {"type": "object", "properties": {"title": {"type": "string"}, "blocks": {"type": "array", "items": {"type": "object"}}}, "required": ["title", "blocks"]}}},
+    {"type": "function", "function": {"name": "list_reports", "description": "List the user's private reports.", "parameters": {"type": "object", "properties": {}}}},
 ]
 
 
@@ -148,4 +151,13 @@ def _execute_tool(db: Session, user: User, chat: Chat, files: list[UploadedFile]
     if name == "read_context":
         doc = db.query(ProjectContextDocument).filter(ProjectContextDocument.user_id == user.id, ProjectContextDocument.name == args["name"]).first()
         return {"name": doc.name, "content": doc.content} if doc else {"error": "Context document not found"}
+    if name == "create_report":
+        try:
+            report = save_report(db, user, args["title"], args["blocks"], chat.id)
+            return {"report_id": report.id, "title": report.title}
+        except HTTPException as exc:
+            return {"error": str(exc.detail), "retryable": True}
+    if name == "list_reports":
+        from ..models import Report
+        return {"reports": [{"id": item.id, "title": item.title} for item in db.query(Report).filter(Report.user_id == user.id).all()]}
     return {"error": f"Unknown tool {name}"}

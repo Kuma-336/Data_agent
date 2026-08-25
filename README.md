@@ -21,6 +21,12 @@ The application database is the Compose PostgreSQL service. Any business Postgre
 
 This project is inspired by nao's Apache-2.0-licensed tool-schema and agent-loop design, but is a Python implementation with a narrower scope.
 
+## Connect Codex or another MCP client
+
+data agent can expose its governed analytics capabilities over a Streamable HTTP MCP endpoint, mirroring nao's three modes: full-agent questions, context/guarded SQL, and reports. It is disabled by default. Set `MCP_ENABLED=true` in `.env`, restart the API, sign in to data agent, then call `POST /mcp/tokens` once with your session cookie to obtain a 90-day bearer token.
+
+Add a Streamable HTTP server in Codex with URL `http://localhost:8000/mcp` and header `Authorization: Bearer <token>`. The exposed tools are `ask_data_agent`, `execute_sql`, `grep`, `ls`, and report create/read/update/archive tools. SQL remains restricted to one read-only `SELECT`/`WITH` statement and every MCP request stays scoped to the token owner's files, connections, context, chats, and reports. Permanent report deletion is intentionally not exposed over MCP.
+
 ## Verification
 
 All release checks use a real DeepSeek request. Set a dedicated billable test key, then run:

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from fastapi import Depends, FastAPI, File, HTTPException, Request, Response, UploadFile
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, Response, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -12,14 +12,16 @@ from .db import Base, engine, get_db
 from .migrations import upgrade_schema
 from .dependencies import current_user
 from .errors import ApiError, normalize_error
-from .models import ChartArtifact, Chat, DataProfile, DataSource, ExportArtifact, Memory, Message, MessagePart, ProjectContextDocument, QueryResult, UploadedFile, User
+from .models import ChartArtifact, Chat, DataProfile, DataSource, ExportArtifact, Memory, Message, MessagePart, ProjectContextDocument, QueryResult, Report, ReportVersion, UploadedFile, User
 from .schemas import ChatCreate, ChatMessageInput, DataSourceInput, DataSourceOut, LoginInput, RegisterInput, UserOut
-from .security import create_access_token, decrypt_secret, encrypt_secret, hash_password, verify_password
+from .security import create_access_token, create_mcp_token, decode_mcp_token, decrypt_secret, encrypt_secret, hash_password, verify_password
 from .services.agent import run_agent
 from .services.storage import save_upload
 from .worker import compact_chat, extract_memory
 from .services.conversation import save_parts
 from .services.analytics import create_chart, export_csv, profile_file
+from .services.reports import export_report, save_report, serialize_report
+from .services.mcp import call_tool as mcp_call_tool, jsonrpc_error, jsonrpc_result, tool_definitions as mcp_tool_definitions
 
 app = FastAPI(title="Personal Data Agent", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
@@ -88,6 +90,49 @@ def logout(response: Response) -> Response:
 @app.get("/auth/me", response_model=UserOut)
 def me(user: User = Depends(current_user)) -> User:
     return user
+
+
+@app.post("/mcp/tokens")
+def create_mcp_access_token(user: User = Depends(current_user)) -> dict:
+    """Return a bearer token once for configuring an external MCP client."""
+    if not settings.mcp_enabled:
+        raise HTTPException(404, "MCP endpoint is disabled")
+    return {"token": create_mcp_token(user.id), "expires_in_days": settings.mcp_token_ttl_days, "mcp_url": "/mcp"}
+
+
+@app.post("/mcp")
+async def mcp(request: Request, authorization: str | None = Header(default=None), db: Session = Depends(get_db)) -> Response:
+    """Streamable HTTP MCP endpoint; disabled unless MCP_ENABLED=true."""
+    if not settings.mcp_enabled:
+        raise HTTPException(404, "MCP endpoint is disabled")
+    if not authorization or not authorization.startswith("Bearer "):
+        return Response(status_code=401, headers={"WWW-Authenticate": "Bearer"})
+    try:
+        user_id = decode_mcp_token(authorization[7:])
+        user = db.get(User, user_id)
+        if not user:
+            raise ValueError("Unknown user")
+        payload = await request.json()
+    except Exception:
+        return Response(status_code=401, headers={"WWW-Authenticate": "Bearer"})
+    request_id, method = payload.get("id"), payload.get("method")
+    if request_id is None:
+        return Response(status_code=202)
+    if method == "initialize":
+        result, headers = jsonrpc_result(request_id, {"protocolVersion": payload.get("params", {}).get("protocolVersion", "2025-03-26"), "capabilities": {"tools": {"listChanged": False}}, "serverInfo": {"name": "personal-data-agent", "version": app.version}}, str(__import__("uuid").uuid4()))
+        return Response(content=json.dumps(result, default=str), media_type="application/json", headers=headers)
+    if method == "tools/list":
+        result, headers = jsonrpc_result(request_id, {"tools": mcp_tool_definitions()})
+        return Response(content=json.dumps(result), media_type="application/json", headers=headers)
+    if method == "tools/call":
+        params = payload.get("params", {})
+        try:
+            output = mcp_call_tool(db, user, str(params.get("name", "")), dict(params.get("arguments") or {}))
+            result, headers = jsonrpc_result(request_id, {"content": [{"type": "text", "text": json.dumps(output, ensure_ascii=False, default=str)}]})
+        except Exception as exc:
+            result, headers = jsonrpc_result(request_id, {"content": [{"type": "text", "text": json.dumps({"error": str(exc)}, ensure_ascii=False)}], "isError": True})
+        return Response(content=json.dumps(result, default=str), media_type="application/json", headers=headers)
+    return Response(content=json.dumps(jsonrpc_error(request_id, -32601, f"Method not found: {method}")), media_type="application/json")
 
 
 @app.post("/files")
@@ -291,6 +336,61 @@ def upsert_context_document(name: str, payload: dict, user: User = Depends(curre
         document.content = content
     db.commit(); db.refresh(document)
     return {"id": document.id, "name": document.name, "content": document.content}
+
+
+@app.get("/reports")
+def list_reports(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    return [{"id": item.id, "title": item.title, "chat_id": item.chat_id, "updated_at": item.updated_at} for item in db.query(Report).filter(Report.user_id == user.id, Report.archived_at.is_(None)).order_by(Report.updated_at.desc()).all()]
+
+
+@app.post("/reports")
+def create_report(payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    report = save_report(db, user, str(payload.get("title", "Untitled report")), payload.get("blocks", []), payload.get("chat_id"))
+    return serialize_report(db, user, report)
+
+
+@app.get("/reports/{report_id}")
+def get_report(report_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    report = db.query(Report).filter(Report.id == report_id, Report.user_id == user.id).first()
+    if not report: raise HTTPException(404, "Report not found")
+    return serialize_report(db, user, report)
+
+
+@app.patch("/reports/{report_id}")
+def update_report(report_id: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    report = db.query(Report).filter(Report.id == report_id, Report.user_id == user.id).first()
+    if not report: raise HTTPException(404, "Report not found")
+    report = save_report(db, user, str(payload.get("title", report.title)), payload.get("blocks", serialize_report(db, user, report)["blocks"]), report.chat_id, report)
+    return serialize_report(db, user, report)
+
+
+@app.delete("/reports/{report_id}", status_code=204)
+def delete_report(report_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> Response:
+    report = db.query(Report).filter(Report.id == report_id, Report.user_id == user.id).first()
+    if not report: raise HTTPException(404, "Report not found")
+    db.delete(report); db.commit(); return Response(status_code=204)
+
+
+@app.get("/reports/{report_id}/versions")
+def list_report_versions(report_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    report = db.query(Report).filter(Report.id == report_id, Report.user_id == user.id).first()
+    if not report: raise HTTPException(404, "Report not found")
+    return [{"id": item.id, "version": item.version, "created_at": item.created_at} for item in db.query(ReportVersion).filter(ReportVersion.report_id == report.id).order_by(ReportVersion.version.desc()).all()]
+
+
+@app.post("/reports/{report_id}/restore/{version_id}")
+def restore_report(report_id: str, version_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    report = db.query(Report).filter(Report.id == report_id, Report.user_id == user.id).first(); version = db.query(ReportVersion).filter(ReportVersion.id == version_id, ReportVersion.report_id == report_id).first()
+    if not report or not version: raise HTTPException(404, "Report version not found")
+    report = save_report(db, user, version.title, version.blocks, report.chat_id, report); return serialize_report(db, user, report)
+
+
+@app.get("/reports/{report_id}/export")
+def download_report(report_id: str, format: str = "html", user: User = Depends(current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import FileResponse
+    report = db.query(Report).filter(Report.id == report_id, Report.user_id == user.id).first()
+    if not report: raise HTTPException(404, "Report not found")
+    path = export_report(db, user, report, format); return FileResponse(path, filename=f"{report.title}.{format}")
 
 
 @app.get("/memories")

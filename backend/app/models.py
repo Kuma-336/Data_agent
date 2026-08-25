@@ -148,6 +148,38 @@ class ProjectContextDocument(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class Report(Base):
+    __tablename__ = "reports"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    chat_id: Mapped[str | None] = mapped_column(ForeignKey("chats.id"), nullable=True, index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ReportBlock(Base):
+    __tablename__ = "report_blocks"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    report_id: Mapped[str] = mapped_column(ForeignKey("reports.id"), index=True)
+    block_order: Mapped[int] = mapped_column(Integer)
+    block_type: Mapped[str] = mapped_column(String(24))
+    content: Mapped[dict] = mapped_column(JSON)
+    query_id: Mapped[str | None] = mapped_column(ForeignKey("query_results.id"), nullable=True)
+    chart_id: Mapped[str | None] = mapped_column(ForeignKey("chart_artifacts.id"), nullable=True)
+
+
+class ReportVersion(Base):
+    __tablename__ = "report_versions"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    report_id: Mapped[str] = mapped_column(ForeignKey("reports.id"), index=True)
+    version: Mapped[int] = mapped_column(Integer)
+    title: Mapped[str] = mapped_column(String(200))
+    blocks: Mapped[list] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class Memory(Base):
     __tablename__ = "memories"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)

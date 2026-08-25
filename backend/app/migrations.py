@@ -12,6 +12,7 @@ def upgrade_schema() -> None:
         "ALTER TABLE memories ADD COLUMN IF NOT EXISTS superseded_by VARCHAR(36) NULL",
         "ALTER TABLE memories ADD COLUMN IF NOT EXISTS source_message_id VARCHAR(36) NULL",
         "ALTER TABLE memories ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NULL",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP NULL",
     ]
     with engine.begin() as connection:
         for statement in statements:
