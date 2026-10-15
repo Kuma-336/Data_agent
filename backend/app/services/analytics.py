@@ -17,23 +17,46 @@ def profile_file(db: Session, user: User, file: UploadedFile) -> DataProfile:
         frame = pd.read_csv(path, sep=None, engine="python")
     else:
         frame = pd.read_excel(path, sheet_name=0)
-    profile = _profile_frame(frame)
+    profile = profile_frame(frame)
     record = DataProfile(user_id=user.id, asset_kind="file", asset_id=file.id, profile=profile)
     db.add(record); db.commit(); db.refresh(record)
     return record
 
 
-def _profile_frame(frame: pd.DataFrame) -> dict:
+def profile_frame(frame: pd.DataFrame) -> dict:
+    """Column statistics for any sampled table, file or query result.
+
+    `top_values` carries the values actually present in a low-cardinality column so
+    the model filters on real values instead of guessing an enum spelling.
+    """
     fields = []
     for name in frame.columns:
         series = frame[name]
-        item = {"name": str(name), "dtype": str(series.dtype), "null_count": int(series.isna().sum()), "distinct_count": int(series.nunique(dropna=True)), "sample_values": [str(value) for value in series.dropna().head(5).tolist()]}
-        if pd.api.types.is_numeric_dtype(series):
-            item["min"] = None if series.dropna().empty else float(series.min())
-            item["max"] = None if series.dropna().empty else float(series.max())
-            item["mean"] = None if series.dropna().empty else float(series.mean())
+        present = series.dropna()
+        item = {"name": str(name), "dtype": str(series.dtype), "null_count": int(series.isna().sum()), "distinct_count": int(series.nunique(dropna=True)), "sample_values": [str(value) for value in present.head(5).tolist()]}
+        if pd.api.types.is_numeric_dtype(series) and not present.empty:
+            item["min"] = float(series.min())
+            item["max"] = float(series.max())
+            item["mean"] = float(series.mean())
+        elif pd.api.types.is_datetime64_any_dtype(series) and not present.empty:
+            item["min"] = str(series.min())
+            item["max"] = str(series.max())
+        top_values = _top_values(present)
+        if top_values:
+            item["top_values"] = top_values
         fields.append(item)
     return {"row_count": int(len(frame)), "column_count": int(len(frame.columns)), "duplicate_rows": int(frame.duplicated().sum()), "fields": fields}
+
+
+def _top_values(present: pd.Series) -> list[dict] | None:
+    """Only categorical columns need exact values; numerics are summarised by min/max/mean."""
+    if present.empty or pd.api.types.is_numeric_dtype(present) or pd.api.types.is_datetime64_any_dtype(present):
+        return None
+    distinct = int(present.nunique())
+    if distinct == 0 or distinct > settings.context_profile_max_distinct or distinct == len(present):
+        return None
+    counts = present.value_counts().head(settings.context_profile_top_values)
+    return [{"value": str(value), "count": int(count)} for value, count in counts.items()]
 
 
 def create_chart(db: Session, user: User, chat_id: str, query_id: str, spec: dict) -> ChartArtifact:

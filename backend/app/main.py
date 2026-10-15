@@ -1,4 +1,5 @@
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, Response, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -12,16 +13,22 @@ from .db import Base, engine, get_db
 from .migrations import upgrade_schema
 from .dependencies import current_user
 from .errors import ApiError, normalize_error
-from .models import ChartArtifact, Chat, DataProfile, DataSource, ExportArtifact, Memory, Message, MessagePart, ProjectContextDocument, QueryResult, Report, ReportVersion, UploadedFile, User
+from .models import AgentRun, ChartArtifact, Chat, DataProfile, DataSource, EvalCase, EvalCaseResult, EvalRun, EvalSuite, ExportArtifact, Memory, Message, MessagePart, ProjectContextDocument, QueryResult, Report, ReportVersion, UploadedFile, User
 from .schemas import ChatCreate, ChatMessageInput, DataSourceInput, DataSourceOut, LoginInput, RegisterInput, UserOut
 from .security import create_access_token, create_mcp_token, decode_mcp_token, decrypt_secret, encrypt_secret, hash_password, verify_password
 from .services.agent import run_agent
 from .services.storage import save_upload
-from .worker import compact_chat, extract_memory
+from .worker import compact_chat, extract_memory, run_eval
 from .services.conversation import save_parts
 from .services.analytics import create_chart, export_csv, profile_file
 from .services.reports import export_report, save_report, serialize_report
 from .services.mcp import call_tool as mcp_call_tool, jsonrpc_error, jsonrpc_result, tool_definitions as mcp_tool_definitions
+from .services.runs import serialize_run, start_run, verify_run
+from .services.jaffle_shop import list_tables as list_jaffle_shop_tables
+from .services.eval_fixtures import import_fixture
+from .services import context_store
+from .services.context_store import ContextTarget
+from .services.context_sync import sync_connection_context, sync_file_context, sync_sample_context
 
 app = FastAPI(title="Personal Data Agent", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
@@ -138,12 +145,23 @@ async def mcp(request: Request, authorization: str | None = Header(default=None)
 @app.post("/files")
 def upload_file(upload: UploadFile = File(...), user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
     record = save_upload(db, user, upload)
+    try:
+        sync_file_context(record)
+    except Exception:
+        # Context documents are a read-time optimisation; never fail the upload for them.
+        pass
     return {"id": record.id, "name": record.original_name, "size_bytes": record.size_bytes, "schema": record.file_schema}
 
 
 @app.get("/files")
 def list_files(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
     return [{"id": item.id, "name": item.original_name, "schema": item.file_schema} for item in db.query(UploadedFile).filter(UploadedFile.user_id == user.id).all()]
+
+
+@app.get("/sample-tables/jaffle-shop")
+def list_jaffle_shop_sample_tables(user: User = Depends(current_user)) -> list[dict]:
+    """List read-only sample tables that can be attached like an uploaded file."""
+    return list_jaffle_shop_tables()
 
 
 @app.post("/files/{file_id}/profile")
@@ -252,13 +270,16 @@ def send_message(chat_id: str, payload: ChatMessageInput, user: User = Depends(c
     from datetime import datetime, timezone
     chat.updated_at = datetime.now(timezone.utc)
     db.commit()
+    run = start_run(db, user.id, chat.id, user_message.id, payload.content, payload.file_ids, payload.connection_ids, payload.jaffle_shop_tables)
 
     def stream():
         emitted: list[tuple[str, dict]] = []
         def emit(kind: str, data: dict) -> None:
             emitted.append((kind, data))
         try:
-            answer, events = run_agent(db, user, chat, payload.content, payload.file_ids, payload.connection_ids, emit)
+            emitted.append(("tool", {"name": "execution_plan", "input": {}, "output": {"run_id": run.id, "steps": run.plan}}))
+            answer, events = run_agent(db, user, chat, payload.content, payload.file_ids, payload.connection_ids, emit, run, payload.jaffle_shop_tables)
+            verifier = verify_run(db, run, answer, events)
             for kind, data in emitted:
                 yield _sse(kind, data)
             assistant = Message(chat_id=chat.id, role="assistant", content=answer, tool_events=events)
@@ -267,8 +288,10 @@ def send_message(chat_id: str, payload: ChatMessageInput, user: User = Depends(c
             save_parts(db, assistant, answer, events)
             chat.updated_at = datetime.now(timezone.utc)
             db.commit()
-            yield _sse("answer", {"content": answer, "tool_events": events})
+            yield _sse("tool", {"name": "verifier", "input": {}, "output": {"run_id": run.id, **verifier}})
+            yield _sse("answer", {"content": answer, "tool_events": events, "run_id": run.id, "verifier": verifier})
         except Exception as exc:
+            run.status = "failed"; db.commit()
             yield _sse("error", normalize_error(exc).as_payload())
         finally:
             try:
@@ -278,6 +301,114 @@ def send_message(chat_id: str, payload: ChatMessageInput, user: User = Depends(c
                 # A temporary Redis failure must not fail a successfully completed answer.
                 pass
     return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/chats/{chat_id}/runs")
+def list_agent_runs(chat_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    _chat_for_user(db, user.id, chat_id)
+    return [{"id": run.id, "status": run.status, "prompt": run.prompt, "plan": run.plan, "verifier": run.verifier, "started_at": run.started_at, "completed_at": run.completed_at} for run in db.query(AgentRun).filter(AgentRun.user_id == user.id, AgentRun.chat_id == chat_id).order_by(AgentRun.started_at.desc()).all()]
+
+
+@app.get("/runs/{run_id}")
+def get_agent_run(run_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    run = db.query(AgentRun).filter(AgentRun.id == run_id, AgentRun.user_id == user.id).first()
+    if not run: raise HTTPException(404, "Run not found")
+    return serialize_run(db, run)
+
+
+@app.get("/eval-suites")
+def list_eval_suites(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    return [{"id": item.id, "name": item.name, "description": item.description, "fixture_hash": item.fixture_hash, "dataset": item.dataset, "case_count": db.query(EvalCase).filter(EvalCase.suite_id == item.id).count()} for item in db.query(EvalSuite).filter(EvalSuite.user_id == user.id).all()]
+
+
+@app.post("/eval-suites")
+def create_eval_suite(payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    name = str(payload.get("name", "")).strip()
+    if not name: raise HTTPException(422, "Suite name is required")
+    suite = EvalSuite(user_id=user.id, name=name[:160], description=str(payload.get("description", ""))[:4000]); db.add(suite); db.commit(); db.refresh(suite)
+    return {"id": suite.id, "name": suite.name, "description": suite.description}
+
+
+@app.post("/eval-suites/import")
+def import_eval_suite(payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    fixture = payload.get("fixture")
+    target_id = str(payload.get("target_id", "")).strip()
+    if not isinstance(fixture, dict) or not target_id:
+        raise HTTPException(422, "fixture and target_id are required")
+    target_type = fixture.get("suite", {}).get("target_type") if isinstance(fixture.get("suite"), dict) else None
+    if target_type == "file":
+        owned = db.query(UploadedFile).filter(UploadedFile.id == target_id, UploadedFile.user_id == user.id).first()
+    elif target_type == "connection":
+        owned = db.query(DataSource).filter(DataSource.id == target_id, DataSource.user_id == user.id).first()
+    else:
+        owned = None
+    if not owned:
+        raise HTTPException(404, "Evaluation resource not found")
+    try:
+        suite, imported = import_fixture(db, user, fixture, target_id)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return {"id": suite.id, "name": suite.name, "fixture_hash": suite.fixture_hash, "case_count": db.query(EvalCase).filter(EvalCase.suite_id == suite.id).count(), "imported": imported}
+
+
+@app.get("/eval-suites/{suite_id}")
+def get_eval_suite(suite_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    suite = db.query(EvalSuite).filter(EvalSuite.id == suite_id, EvalSuite.user_id == user.id).first()
+    if not suite: raise HTTPException(404, "Evaluation suite not found")
+    cases = db.query(EvalCase).filter(EvalCase.suite_id == suite.id).all()
+    return {"id": suite.id, "name": suite.name, "description": suite.description, "fixture_hash": suite.fixture_hash, "dataset": suite.dataset, "cases": [{"id": case.id, "case_key": case.case_key, "name": case.name, "category": case.category, "difficulty": case.difficulty, "prompt": case.prompt, "target_type": case.target_type, "target_id": case.target_id, "reference_sql": case.reference_sql, "expected_tools": case.expected_tools, "expect_report": case.expect_report, "acceptance": case.acceptance} for case in cases]}
+
+
+@app.post("/eval-suites/{suite_id}/cases")
+def create_eval_case(suite_id: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    suite = db.query(EvalSuite).filter(EvalSuite.id == suite_id, EvalSuite.user_id == user.id).first()
+    if not suite: raise HTTPException(404, "Evaluation suite not found")
+    target_type, target_id = str(payload.get("target_type", "")), str(payload.get("target_id", ""))
+    if target_type not in {"file", "connection"} or not target_id: raise HTTPException(422, "target_type must be file or connection and target_id is required")
+    owned = db.query(UploadedFile).filter(UploadedFile.id == target_id, UploadedFile.user_id == user.id).first() if target_type == "file" else db.query(DataSource).filter(DataSource.id == target_id, DataSource.user_id == user.id).first()
+    if not owned: raise HTTPException(404, "Evaluation resource not found")
+    expected_tools = list(payload.get("expected_tools", []))
+    expect_report = bool(payload.get("expect_report", False))
+    acceptance = dict(payload.get("acceptance") or {"data_match": "exact_rows_ignore_order", "required_tools": expected_tools, "expect_report": expect_report, "evidence_required": True, "max_tool_calls": 4})
+    case = EvalCase(suite_id=suite.id, case_key=str(payload.get("case_key", ""))[:80] or None, name=str(payload.get("name", "Untitled"))[:160], category=str(payload.get("category", "manual"))[:80], difficulty=str(payload.get("difficulty", "unrated"))[:24], prompt=str(payload.get("prompt", "")), target_type=target_type, target_id=target_id, reference_sql=str(payload.get("reference_sql", "")), expected_tools=expected_tools, expect_report=expect_report, acceptance=acceptance)
+    if not case.prompt.strip() or not case.reference_sql.strip(): raise HTTPException(422, "prompt and reference_sql are required")
+    db.add(case); db.commit(); db.refresh(case); return {"id": case.id, "name": case.name}
+
+
+@app.post("/eval-suites/{suite_id}/runs")
+def start_eval_suite(suite_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    suite = db.query(EvalSuite).filter(EvalSuite.id == suite_id, EvalSuite.user_id == user.id).first()
+    if not suite: raise HTTPException(404, "Evaluation suite not found")
+    run = EvalRun(suite_id=suite.id, user_id=user.id); db.add(run); db.commit(); db.refresh(run); run_eval.send(run.id)
+    return {"id": run.id, "status": run.status}
+
+
+@app.get("/eval-runs/{eval_run_id}")
+def get_eval_run(eval_run_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    run = db.query(EvalRun).filter(EvalRun.id == eval_run_id, EvalRun.user_id == user.id).first()
+    if not run: raise HTTPException(404, "Evaluation run not found")
+    rows = db.query(EvalCaseResult).filter(EvalCaseResult.eval_run_id == run.id).all()
+    return {"id": run.id, "status": run.status, "summary": run.summary, "error": run.error, "created_at": run.created_at, "completed_at": run.completed_at, "results": [{"case_id": item.eval_case_id, "agent_run_id": item.agent_run_id, "status": item.status, "passed": item.passed, "details": item.details} for item in rows]}
+
+
+@app.post("/runs/{run_id}/replay")
+def replay_agent_run(run_id: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    if payload.get("confirmed") is not True:
+        raise HTTPException(422, "Replay requires confirmed=true because it invokes the configured model and may incur cost")
+    source = db.query(AgentRun).filter(AgentRun.id == run_id, AgentRun.user_id == user.id).first()
+    if not source: raise HTTPException(404, "Run not found")
+    file_ids, connection_ids = list(source.resources.get("file_ids", [])), list(source.resources.get("connection_ids", []))
+    files = db.query(UploadedFile).filter(UploadedFile.user_id == user.id, UploadedFile.id.in_(file_ids)).count() if file_ids else 0
+    sources = db.query(DataSource).filter(DataSource.user_id == user.id, DataSource.id.in_(connection_ids)).count() if connection_ids else 0
+    if files != len(file_ids) or sources != len(connection_ids): raise HTTPException(409, "Replay resources are no longer available")
+    chat = Chat(user_id=user.id, title=f"Replay: {source.prompt[:180]}"); db.add(chat); db.commit(); db.refresh(chat)
+    message = Message(chat_id=chat.id, role="user", content=source.prompt); db.add(message); db.flush(); save_parts(db, message, source.prompt); db.commit()
+    sample_tables = list(source.resources.get("jaffle_shop_tables", []))
+    replay = start_run(db, user.id, chat.id, message.id, source.prompt, file_ids, connection_ids, sample_tables, parent_run_id=source.id)
+    answer, events = run_agent(db, user, chat, source.prompt, file_ids, connection_ids, lambda _kind, _data: None, replay, sample_tables)
+    verifier = verify_run(db, replay, answer, events)
+    assistant = Message(chat_id=chat.id, role="assistant", content=answer, tool_events=events); db.add(assistant); db.flush(); save_parts(db, assistant, answer, events); db.commit()
+    return {"chat_id": chat.id, "run": serialize_run(db, replay), "answer": answer, "verifier": verifier}
 
 
 @app.get("/queries/{query_id}")
@@ -320,6 +451,62 @@ def download_export(export_id: str, user: User = Depends(current_user), db: Sess
     return FileResponse(artifact.storage_path, filename=f"query-{artifact.query_id}.csv", media_type="text/csv")
 
 
+@app.post("/connections/{connection_id}/sync-context")
+def sync_connection_context_documents(connection_id: str, profile: bool = True, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    source = _source_for_user(db, user.id, connection_id)
+    summary = sync_connection_context(source, profile=profile)
+    source.schema_cache = {"tables": [item["table"] for item in summary["tables"]], "stored_as": "context_files"}
+    source.context_synced_at = datetime.now(UTC)
+    db.commit()
+    return summary
+
+
+@app.post("/files/{file_id}/sync-context")
+def sync_file_context_documents(file_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    return sync_file_context(_file_for_user(db, user.id, file_id))
+
+
+@app.post("/sample-tables/jaffle-shop/sync-context")
+def sync_sample_context_documents(user: User = Depends(current_user)) -> dict:
+    return sync_sample_context(user.id)
+
+
+@app.get("/context/databases")
+def list_context_databases(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    targets = [context_store.connection_target(item) for item in db.query(DataSource).filter(DataSource.user_id == user.id).all()]
+    targets += [context_store.file_target(item) for item in db.query(UploadedFile).filter(UploadedFile.user_id == user.id).all()]
+    targets.append(context_store.sample_target(user.id))
+    return [_context_database_summary(target) for target in targets]
+
+
+@app.get("/context/{kind}/{asset_id}/tables")
+def list_context_tables(kind: str, asset_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    target = _context_target_for_user(db, user, kind, asset_id)
+    return {"target": target.reference, "tables": context_store.list_tables(target)}
+
+
+@app.get("/context/{kind}/{asset_id}/tables/{table}/{document_kind}")
+def read_context_table_document(kind: str, asset_id: str, table: str, document_kind: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    target = _context_target_for_user(db, user, kind, asset_id)
+    content = context_store.read_table_document(target, table, document_kind)
+    if content is None:
+        raise HTTPException(404, "Context document not found")
+    return {"target": target.reference, "table": table, "kind": document_kind, "content": content}
+
+
+@app.get("/context/{kind}/{asset_id}/rules")
+def read_context_rules(kind: str, asset_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    target = _context_target_for_user(db, user, kind, asset_id)
+    return {"target": target.reference, "content": context_store.read_rules(target) or ""}
+
+
+@app.put("/context/{kind}/{asset_id}/rules")
+def write_context_rules(kind: str, asset_id: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    target = _context_target_for_user(db, user, kind, asset_id)
+    context_store.write_rules(target, str(payload.get("content", "")))
+    return {"target": target.reference, "content": context_store.read_rules(target) or ""}
+
+
 @app.get("/context-documents")
 def list_context_documents(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
     return [{"id": item.id, "name": item.name, "path": item.path, "content": item.content, "updated_at": item.updated_at} for item in db.query(ProjectContextDocument).filter(ProjectContextDocument.user_id == user.id).all()]
@@ -339,8 +526,11 @@ def upsert_context_document(name: str, payload: dict, user: User = Depends(curre
 
 
 @app.get("/reports")
-def list_reports(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
-    return [{"id": item.id, "title": item.title, "chat_id": item.chat_id, "updated_at": item.updated_at} for item in db.query(Report).filter(Report.user_id == user.id, Report.archived_at.is_(None)).order_by(Report.updated_at.desc()).all()]
+def list_reports(chat_id: str | None = None, user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    query = db.query(Report).filter(Report.user_id == user.id, Report.archived_at.is_(None))
+    if chat_id is not None:
+        query = query.filter(Report.chat_id == chat_id)
+    return [{"id": item.id, "title": item.title, "chat_id": item.chat_id, "updated_at": item.updated_at} for item in query.order_by(Report.updated_at.desc()).all()]
 
 
 @app.post("/reports")
@@ -439,6 +629,30 @@ def _source_for_user(db: Session, user_id: str, source_id: str) -> DataSource:
     if not source:
         raise HTTPException(404, "Data source not found")
     return source
+
+
+def _file_for_user(db: Session, user_id: str, file_id: str) -> UploadedFile:
+    file = db.query(UploadedFile).filter(UploadedFile.id == file_id, UploadedFile.user_id == user_id).first()
+    if not file:
+        raise HTTPException(404, "File not found")
+    return file
+
+
+def _context_target_for_user(db: Session, user: User, kind: str, asset_id: str) -> ContextTarget:
+    """Context is addressed only through a database the caller owns, so reads follow ownership."""
+    if kind == "connection":
+        return context_store.connection_target(_source_for_user(db, user.id, asset_id))
+    if kind == "file":
+        return context_store.file_target(_file_for_user(db, user.id, asset_id))
+    if kind == "sample" and asset_id == context_store.SAMPLE_ASSET_ID:
+        return context_store.sample_target(user.id)
+    raise HTTPException(404, "Context target not found")
+
+
+def _context_database_summary(target: ContextTarget) -> dict:
+    tables = context_store.list_tables(target)
+    rules = context_store.read_rules(target)
+    return {"kind": target.kind, "asset_id": target.asset_id, "target": target.reference, "label": target.label, "table_count": len(tables), "has_rules": bool(rules and rules.strip())}
 
 
 def _sse(event: str, payload: dict) -> str:

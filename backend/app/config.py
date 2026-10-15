@@ -17,9 +17,18 @@ class Settings(BaseSettings):
     max_query_rows: int = 1000
     max_upload_mb: int = 25
     data_dir: Path = Path("/data")
+    # Set this in a deployed container to a read-only mounted copy of the sample DB.
+    jaffle_shop_database_path: Path | None = None
     redis_url: str = "redis://redis:6379/0"
     llm_context_window: int = 64_000
     llm_max_output_tokens: int = 4_096
+    # Persisted schema/profiling/rules context files, read on demand per database.
+    context_max_tables: int = 200
+    context_preview_rows: int = 10
+    context_profile_sample_rows: int = 50_000
+    context_profile_top_values: int = 10
+    context_profile_max_distinct: int = 50
+    context_max_rules_chars: int = 50_000
     # External agents can read user-owned data through MCP; opt in per deployment.
     mcp_enabled: bool = False
     mcp_subagent_enabled: bool = True

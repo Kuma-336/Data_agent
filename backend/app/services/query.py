@@ -10,6 +10,7 @@ from ..config import settings
 from ..models import DataSource, QueryResult, UploadedFile, User
 from ..security import decrypt_secret
 from .sql_guard import validate_readonly_sql
+from .jaffle_shop import execute_query as execute_jaffle_shop_query
 
 
 def _json_safe(rows: list[dict]) -> list[dict]:
@@ -43,10 +44,10 @@ def execute_local(db: Session, user: User, chat_id: str, file: UploadedFile, sql
     return _save_result(db, user.id, chat_id, columns, rows, safe_sql, f"file:{file.id}")
 
 
-def execute_postgres(db: Session, user: User, chat_id: str, source: DataSource, sql: str) -> QueryResult:
+def engine_for_source(source: DataSource):
+    """Build a read-only-friendly engine for a saved connection, host allowlist enforced."""
     if source.host.lower() not in settings.allowed_hosts:
         raise HTTPException(403, "Database host is not allowlisted")
-    safe_sql = validate_readonly_sql(sql, settings.max_query_rows)
     url = URL.create(
         "postgresql+psycopg",
         username=source.username,
@@ -56,7 +57,12 @@ def execute_postgres(db: Session, user: User, chat_id: str, source: DataSource, 
         database=source.database_name,
         query={"sslmode": source.sslmode},
     )
-    engine = create_engine(url, connect_args={"options": "-c statement_timeout=30000"})
+    return create_engine(url, connect_args={"options": "-c statement_timeout=30000"})
+
+
+def execute_postgres(db: Session, user: User, chat_id: str, source: DataSource, sql: str) -> QueryResult:
+    safe_sql = validate_readonly_sql(sql, settings.max_query_rows)
+    engine = engine_for_source(source)
     try:
         with engine.connect() as connection:
             connection.execute(text("SET TRANSACTION READ ONLY"))
@@ -68,6 +74,12 @@ def execute_postgres(db: Session, user: User, chat_id: str, source: DataSource, 
     finally:
         engine.dispose()
     return _save_result(db, user.id, chat_id, columns, rows, safe_sql, f"postgres:{source.id}")
+
+
+def execute_jaffle_shop(db: Session, user: User, chat_id: str, tables: list[str], sql: str) -> QueryResult:
+    safe_sql = validate_readonly_sql(sql, settings.max_query_rows)
+    columns, rows, executed_sql = execute_jaffle_shop_query(safe_sql, tables, settings.max_query_rows)
+    return _save_result(db, user.id, chat_id, columns, rows, executed_sql, f"jaffle_shop:{','.join(sorted(tables))}")
 
 
 def _save_result(db: Session, user_id: str, chat_id: str, columns: list[str], rows: list[dict], sql: str, source: str) -> QueryResult:
