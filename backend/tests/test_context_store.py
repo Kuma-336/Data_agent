@@ -8,7 +8,7 @@ from app.db import Base, engine
 from app.main import app
 from app.models import DataSource, UploadedFile, User
 from app.services import context_store
-from app.services.agent import _database_context, build_system_prompt
+from app.services.prompt import build_system_prompt, database_context
 from app.services.context_sync import render_columns_document
 
 SAMPLE_CSV = b"name,status,amount\nA,completed,10\nB,completed,20\nC,returned,30\nD,placed,40\n"
@@ -137,8 +137,8 @@ def test_system_prompt_inlines_rules_and_replaces_the_schema_dump():
     context_store.write_rules(target, "Net revenue excludes freight.")
     context_store.write_table_document(target, "public.orders", "columns", "# public.orders\n\n- order_id (integer)\n")
 
-    database_context = _database_context(User(id="owner-1"), [], [source], False)
-    prompt = build_system_prompt([], [], [source], [], [], database_context)
+    databases = database_context(User(id="owner-1"), [], [source], False)
+    prompt = build_system_prompt([], [], [source], [], [], databases)
 
     assert "Net revenue excludes freight." in prompt
     assert "public.orders (columns)" in prompt

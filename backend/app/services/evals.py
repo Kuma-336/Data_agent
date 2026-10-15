@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from ..models import AgentRun, Chat, DataSource, EvalCase, EvalCaseResult, EvalRun, EvalSuite, Message, QueryResult, UploadedFile, User
-from .agent import _execute_tool, run_agent
+from .agent import run_agent
+from .tools import ToolContext, registry
 from .conversation import save_parts
 from .runs import start_run, verify_run
 
@@ -77,7 +78,8 @@ def _run_case(db: Session, user: User, eval_run: EvalRun, case: EvalCase) -> Eva
     source = db.query(DataSource).filter(DataSource.id == case.target_id, DataSource.user_id == user.id).first() if case.target_type == "connection" else None
     if (case.target_type == "file" and not file) or (case.target_type == "connection" and not source):
         record = EvalCaseResult(eval_run_id=eval_run.id, eval_case_id=case.id, status="blocked", passed=False, details={"reason": "Referenced resource is unavailable"}); db.add(record); db.commit(); return record
-    expected = _execute_tool(db, user, chat, [file] if file else [], [source] if source else [], "execute_sql", {"target": "data" if file else source.id, "sql": case.reference_sql})
+    reference_context = ToolContext(db=db, user=user, chat=chat, files=[file] if file else [], sources=[source] if source else [])
+    expected = registry.dispatch("execute_sql", {"target": "data" if file else source.id, "sql": case.reference_sql}, reference_context)
     if expected.get("error"):
         record = EvalCaseResult(eval_run_id=eval_run.id, eval_case_id=case.id, status="failed", passed=False, details={"reason": "Reference SQL failed", "error": expected["error"]}); db.add(record); db.commit(); return record
     message = Message(chat_id=chat.id, role="user", content=case.prompt); db.add(message); db.flush(); save_parts(db, message, case.prompt); db.commit()

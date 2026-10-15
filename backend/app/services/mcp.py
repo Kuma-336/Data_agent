@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..models import Chat, DataSource, Message, ProjectContextDocument, Report, UploadedFile, User
-from .agent import _execute_tool, run_agent
+from .agent import run_agent
+from .tools import ToolContext, registry
 from .conversation import save_parts
 from .reports import save_report, serialize_report
 
@@ -84,10 +85,10 @@ def _run_sql(db: Session, user: User, args: dict) -> dict:
     if file_id:
         file = db.query(UploadedFile).filter(UploadedFile.id == file_id, UploadedFile.user_id == user.id).first()
         if not file: raise ValueError("file_id is not available")
-        return _execute_tool(db, user, chat, [file], [], "execute_sql", {"target": "data", "sql": sql})
+        return registry.dispatch("execute_sql", {"target": "data", "sql": sql}, ToolContext(db=db, user=user, chat=chat, files=[file]))
     source = db.query(DataSource).filter(DataSource.id == connection_id, DataSource.user_id == user.id).first()
     if not source: raise ValueError("connection_id is not available")
-    return _execute_tool(db, user, chat, [], [source], "execute_sql", {"target": connection_id, "sql": sql})
+    return registry.dispatch("execute_sql", {"target": connection_id, "sql": sql}, ToolContext(db=db, user=user, chat=chat, sources=[source]))
 
 
 def _list_resources(db: Session, user: User, path: str) -> dict:
