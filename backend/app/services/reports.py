@@ -26,6 +26,8 @@ def serialize_report(db: Session, user: User, report: Report) -> dict:
 
 def save_report(db: Session, user: User, title: str, blocks: list[dict], chat_id: str | None = None, report: Report | None = None) -> Report:
     if not title.strip(): raise HTTPException(422, "Report title is required")
+    if not blocks or blocks[0].get("type") != "markdown" or not str((blocks[0].get("content") or {}).get("text", "")).strip():
+        raise HTTPException(422, "Reports must begin with a non-empty markdown narrative")
     if report is None:
         report = Report(user_id=user.id, chat_id=chat_id, title=title[:200]); db.add(report); db.flush()
     else:

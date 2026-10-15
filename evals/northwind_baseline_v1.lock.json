@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "fixture": "northwind_baseline_v1.json",
+  "fixture_sha256": "61a7e349110fd0ad42ff10b458e1f0d0d0702a859572be3667a2c7dd677554a7",
+  "smoke_fixture": "northwind_baseline_v1_smoke.json",
+  "smoke_fixture_sha256": "f0d8a384d39f65f502efb073d0de91e4dbb1251630a7644d9d55498ef5a16423",
+  "dataset_sha256": "0ee30c01ba282f7194f38bf7f99cd6be0470b7ee5f67d0f7ca41fb058d735e0c",
+  "dataset_raw_url": "https://raw.githubusercontent.com/pthom/northwind_psql/cd0ef28d66369fbe177778e604e4be0f153c9e5c/northwind.sql",
+  "case_count": 150,
+  "category_counts": {
+    "advanced": 5,
+    "aggregation": 32,
+    "business_metric": 19,
+    "data_quality": 16,
+    "join_ranking": 30,
+    "report": 10,
+    "simple_filter": 32,
+    "time_series": 6
+  },
+  "difficulty_counts": {
+    "easy": 74,
+    "hard": 17,
+    "medium": 59
+  },
+  "smoke_case_keys": [
+    "NW001",
+    "NW022",
+    "NW033",
+    "NW055",
+    "NW065",
+    "NW088",
+    "NW095",
+    "NW104",
+    "NW115",
+    "NW120",
+    "NW136",
+    "NW149"
+  ]
+}

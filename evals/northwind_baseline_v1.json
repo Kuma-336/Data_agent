@@ -1,0 +1,3191 @@
+{
+  "schema_version": 1,
+  "suite": {
+    "name": "Northwind Baseline V1",
+    "description": "150 deterministic PostgreSQL cases covering filters, aggregates, joins, time series, data quality, reports, and advanced analysis.",
+    "target_type": "connection",
+    "target_name": "Northwind Baseline",
+    "dataset": {
+      "source": "https://github.com/pthom/northwind_psql",
+      "commit": "cd0ef28d66369fbe177778e604e4be0f153c9e5c",
+      "sha256": "0ee30c01ba282f7194f38bf7f99cd6be0470b7ee5f67d0f7ca41fb058d735e0c"
+    }
+  },
+  "acceptance_defaults": {
+    "data_match": "exact_rows_ignore_order",
+    "evidence_required": true,
+    "required_tool": "execute_sql"
+  },
+  "cases": [
+    {
+      "case_key": "NW001",
+      "name": "NW001 Customers in Argentina",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Argentina？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Argentina'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW002",
+      "name": "NW002 Customers in Austria",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Austria？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Austria'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW003",
+      "name": "NW003 Customers in Belgium",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Belgium？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Belgium'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW004",
+      "name": "NW004 Customers in Brazil",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Brazil？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Brazil'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW005",
+      "name": "NW005 Customers in Canada",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Canada？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Canada'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW006",
+      "name": "NW006 Customers in Denmark",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Denmark？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Denmark'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW007",
+      "name": "NW007 Customers in Finland",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Finland？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Finland'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW008",
+      "name": "NW008 Customers in France",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 France？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'France'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW009",
+      "name": "NW009 Customers in Germany",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Germany？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Germany'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW010",
+      "name": "NW010 Customers in Ireland",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Ireland？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Ireland'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW011",
+      "name": "NW011 Customers in Italy",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Italy？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Italy'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW012",
+      "name": "NW012 Customers in Mexico",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Mexico？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Mexico'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW013",
+      "name": "NW013 Customers in Norway",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Norway？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Norway'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW014",
+      "name": "NW014 Customers in Poland",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Poland？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Poland'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW015",
+      "name": "NW015 Customers in Portugal",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Portugal？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Portugal'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW016",
+      "name": "NW016 Customers in Spain",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Spain？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Spain'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW017",
+      "name": "NW017 Customers in Sweden",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Sweden？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Sweden'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW018",
+      "name": "NW018 Customers in Switzerland",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Switzerland？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Switzerland'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW019",
+      "name": "NW019 Customers in UK",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 UK？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'UK'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW020",
+      "name": "NW020 Customers in USA",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 USA？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'USA'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW021",
+      "name": "NW021 Customers in Venezuela",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "Northwind 中有多少客户位于 Venezuela？只返回一列 customer_count。",
+      "reference_sql": "SELECT COUNT(*)::int AS customer_count FROM customers WHERE country = 'Venezuela'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW022",
+      "name": "NW022 Products in Beverages",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Beverages 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Beverages' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW023",
+      "name": "NW023 Products in Condiments",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Condiments 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Condiments' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW024",
+      "name": "NW024 Products in Confections",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Confections 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Confections' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW025",
+      "name": "NW025 Products in Dairy Products",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Dairy Products 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Dairy Products' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW026",
+      "name": "NW026 Products in Grains/Cereals",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Grains/Cereals 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Grains/Cereals' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW027",
+      "name": "NW027 Products in Meat/Poultry",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Meat/Poultry 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Meat/Poultry' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW028",
+      "name": "NW028 Products in Produce",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Produce 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Produce' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW029",
+      "name": "NW029 Products in Seafood",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 Seafood 分类中的产品数量。只返回 category_name 和 product_count，并保留该分类名称。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Seafood' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW030",
+      "name": "NW030 Orders in 1996",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 1996 年下单的订单数量。只返回 order_year 和 order_count。",
+      "reference_sql": "SELECT 1996::int AS order_year, COUNT(*)::int AS order_count FROM orders WHERE order_date >= DATE '1996-01-01' AND order_date < DATE '1997-01-01'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW031",
+      "name": "NW031 Orders in 1997",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 1997 年下单的订单数量。只返回 order_year 和 order_count。",
+      "reference_sql": "SELECT 1997::int AS order_year, COUNT(*)::int AS order_count FROM orders WHERE order_date >= DATE '1997-01-01' AND order_date < DATE '1998-01-01'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW032",
+      "name": "NW032 Orders in 1998",
+      "category": "simple_filter",
+      "difficulty": "easy",
+      "prompt": "统计 1998 年下单的订单数量。只返回 order_year 和 order_count。",
+      "reference_sql": "SELECT 1998::int AS order_year, COUNT(*)::int AS order_count FROM orders WHERE order_date >= DATE '1998-01-01' AND order_date < DATE '1999-01-01'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW033",
+      "name": "NW033 Orders shipped to Argentina",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Argentina 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Argentina' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW034",
+      "name": "NW034 Orders shipped to Austria",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Austria 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Austria' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW035",
+      "name": "NW035 Orders shipped to Belgium",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Belgium 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Belgium' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW036",
+      "name": "NW036 Orders shipped to Brazil",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Brazil 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Brazil' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW037",
+      "name": "NW037 Orders shipped to Canada",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Canada 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Canada' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW038",
+      "name": "NW038 Orders shipped to Denmark",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Denmark 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Denmark' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW039",
+      "name": "NW039 Orders shipped to Finland",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Finland 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Finland' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW040",
+      "name": "NW040 Orders shipped to France",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 France 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'France' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW041",
+      "name": "NW041 Orders shipped to Germany",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Germany 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Germany' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW042",
+      "name": "NW042 Orders shipped to Ireland",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Ireland 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Ireland' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW043",
+      "name": "NW043 Orders shipped to Italy",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Italy 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Italy' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW044",
+      "name": "NW044 Orders shipped to Mexico",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Mexico 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Mexico' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW045",
+      "name": "NW045 Orders shipped to Norway",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Norway 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Norway' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW046",
+      "name": "NW046 Orders shipped to Poland",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Poland 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Poland' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW047",
+      "name": "NW047 Orders shipped to Portugal",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Portugal 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Portugal' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW048",
+      "name": "NW048 Orders shipped to Spain",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Spain 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Spain' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW049",
+      "name": "NW049 Orders shipped to Sweden",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Sweden 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Sweden' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW050",
+      "name": "NW050 Orders shipped to Switzerland",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Switzerland 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Switzerland' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW051",
+      "name": "NW051 Orders shipped to UK",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 UK 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'UK' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW052",
+      "name": "NW052 Orders shipped to USA",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 USA 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'USA' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW053",
+      "name": "NW053 Orders shipped to Venezuela",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "统计运往 Venezuela 的订单数量。只返回 ship_country 和 order_count。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS order_count FROM orders WHERE ship_country = 'Venezuela' GROUP BY ship_country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW054",
+      "name": "NW054 Revenue for Beverages",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Beverages 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Beverages' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW055",
+      "name": "NW055 Revenue for Condiments",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Condiments 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Condiments' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW056",
+      "name": "NW056 Revenue for Confections",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Confections 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Confections' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW057",
+      "name": "NW057 Revenue for Dairy Products",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Dairy Products 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Dairy Products' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW058",
+      "name": "NW058 Revenue for Grains/Cereals",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Grains/Cereals 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Grains/Cereals' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW059",
+      "name": "NW059 Revenue for Meat/Poultry",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Meat/Poultry 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Meat/Poultry' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW060",
+      "name": "NW060 Revenue for Produce",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Produce 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Produce' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW061",
+      "name": "NW061 Revenue for Seafood",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "prompt": "计算 Seafood 分类的折后净销售额。净销售额定义为 unit_price * quantity * (1 - discount)。只返回 category_name 和四舍五入到两位小数的 net_revenue。",
+      "reference_sql": "SELECT c.category_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM categories c JOIN products p ON p.category_id = c.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Seafood' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW062",
+      "name": "NW062 Freight in 1996",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "计算 1996 年订单的总运费。只返回 order_year 和四舍五入到两位小数的 total_freight。",
+      "reference_sql": "SELECT 1996::int AS order_year, ROUND(SUM(freight)::numeric, 2) AS total_freight FROM orders WHERE order_date >= DATE '1996-01-01' AND order_date < DATE '1997-01-01'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW063",
+      "name": "NW063 Freight in 1997",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "计算 1997 年订单的总运费。只返回 order_year 和四舍五入到两位小数的 total_freight。",
+      "reference_sql": "SELECT 1997::int AS order_year, ROUND(SUM(freight)::numeric, 2) AS total_freight FROM orders WHERE order_date >= DATE '1997-01-01' AND order_date < DATE '1998-01-01'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW064",
+      "name": "NW064 Freight in 1998",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "prompt": "计算 1998 年订单的总运费。只返回 order_year 和四舍五入到两位小数的 total_freight。",
+      "reference_sql": "SELECT 1998::int AS order_year, ROUND(SUM(freight)::numeric, 2) AS total_freight FROM orders WHERE order_date >= DATE '1998-01-01' AND order_date < DATE '1999-01-01'",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW065",
+      "name": "NW065 Top products in Beverages",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Beverages 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Beverages' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW066",
+      "name": "NW066 Top products in Condiments",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Condiments 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Condiments' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW067",
+      "name": "NW067 Top products in Confections",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Confections 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Confections' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW068",
+      "name": "NW068 Top products in Dairy Products",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Dairy Products 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Dairy Products' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW069",
+      "name": "NW069 Top products in Grains/Cereals",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Grains/Cereals 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Grains/Cereals' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW070",
+      "name": "NW070 Top products in Meat/Poultry",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Meat/Poultry 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Meat/Poultry' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW071",
+      "name": "NW071 Top products in Produce",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Produce 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Produce' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW072",
+      "name": "NW072 Top products in Seafood",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 Seafood 分类折后净销售额最高的 5 个产品。返回 product_name 和两位小数的 net_revenue，按 net_revenue 降序、product_name 升序。",
+      "reference_sql": "SELECT p.product_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM products p JOIN categories c ON c.category_id = p.category_id JOIN order_details od ON od.product_id = p.product_id WHERE c.category_name = 'Seafood' GROUP BY p.product_id, p.product_name ORDER BY net_revenue DESC, p.product_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW073",
+      "name": "NW073 Top customers in 1996",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 1996 年折后净销售额最高的 5 个客户。返回 company_name 和两位小数的 net_revenue，按 net_revenue 降序、company_name 升序。",
+      "reference_sql": "SELECT c.company_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1996-01-01' AND o.order_date < DATE '1997-01-01' GROUP BY c.customer_id, c.company_name ORDER BY net_revenue DESC, c.company_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW074",
+      "name": "NW074 Top customers in 1997",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 1997 年折后净销售额最高的 5 个客户。返回 company_name 和两位小数的 net_revenue，按 net_revenue 降序、company_name 升序。",
+      "reference_sql": "SELECT c.company_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1997-01-01' AND o.order_date < DATE '1998-01-01' GROUP BY c.customer_id, c.company_name ORDER BY net_revenue DESC, c.company_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW075",
+      "name": "NW075 Top customers in 1998",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 1998 年折后净销售额最高的 5 个客户。返回 company_name 和两位小数的 net_revenue，按 net_revenue 降序、company_name 升序。",
+      "reference_sql": "SELECT c.company_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1998-01-01' AND o.order_date < DATE '1999-01-01' GROUP BY c.customer_id, c.company_name ORDER BY net_revenue DESC, c.company_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW076",
+      "name": "NW076 Top employees in 1996",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 1996 年负责订单的折后净销售额最高的 5 名员工。返回 employee_name 和两位小数的 net_revenue，按 net_revenue 降序、employee_name 升序。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1996-01-01' AND o.order_date < DATE '1997-01-01' GROUP BY e.employee_id, e.first_name, e.last_name ORDER BY net_revenue DESC, employee_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW077",
+      "name": "NW077 Top employees in 1997",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 1997 年负责订单的折后净销售额最高的 5 名员工。返回 employee_name 和两位小数的 net_revenue，按 net_revenue 降序、employee_name 升序。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1997-01-01' AND o.order_date < DATE '1998-01-01' GROUP BY e.employee_id, e.first_name, e.last_name ORDER BY net_revenue DESC, employee_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW078",
+      "name": "NW078 Top employees in 1998",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "列出 1998 年负责订单的折后净销售额最高的 5 名员工。返回 employee_name 和两位小数的 net_revenue，按 net_revenue 降序、employee_name 升序。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1998-01-01' AND o.order_date < DATE '1999-01-01' GROUP BY e.employee_id, e.first_name, e.last_name ORDER BY net_revenue DESC, employee_name ASC LIMIT 5",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW079",
+      "name": "NW079 Supplier products in Australia",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Australia 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Australia' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW080",
+      "name": "NW080 Supplier products in Brazil",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Brazil 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Brazil' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW081",
+      "name": "NW081 Supplier products in Canada",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Canada 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Canada' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW082",
+      "name": "NW082 Supplier products in Denmark",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Denmark 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Denmark' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW083",
+      "name": "NW083 Supplier products in Finland",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Finland 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Finland' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW084",
+      "name": "NW084 Supplier products in France",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 France 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'France' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW085",
+      "name": "NW085 Supplier products in Germany",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Germany 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Germany' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW086",
+      "name": "NW086 Supplier products in Italy",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Italy 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Italy' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW087",
+      "name": "NW087 Supplier products in Japan",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Japan 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Japan' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW088",
+      "name": "NW088 Supplier products in Netherlands",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Netherlands 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Netherlands' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW089",
+      "name": "NW089 Supplier products in Norway",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Norway 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Norway' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW090",
+      "name": "NW090 Supplier products in Singapore",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Singapore 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Singapore' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW091",
+      "name": "NW091 Supplier products in Spain",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Spain 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Spain' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW092",
+      "name": "NW092 Supplier products in Sweden",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 Sweden 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'Sweden' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW093",
+      "name": "NW093 Supplier products in UK",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 UK 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'UK' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW094",
+      "name": "NW094 Supplier products in USA",
+      "category": "join_ranking",
+      "difficulty": "medium",
+      "prompt": "统计 USA 供应商提供的产品数量。返回 supplier_country、supplier_count 和 product_count。",
+      "reference_sql": "SELECT s.country AS supplier_country, COUNT(DISTINCT s.supplier_id)::int AS supplier_count, COUNT(p.product_id)::int AS product_count FROM suppliers s LEFT JOIN products p ON p.supplier_id = s.supplier_id WHERE s.country = 'USA' GROUP BY s.country",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW095",
+      "name": "NW095 Monthly revenue in 1996",
+      "category": "time_series",
+      "difficulty": "medium",
+      "prompt": "按月统计 1996 年折后净销售额。返回 month（YYYY-MM）和两位小数的 net_revenue，按 month 升序。",
+      "reference_sql": "SELECT TO_CHAR(o.order_date, 'YYYY-MM') AS month, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1996-01-01' AND o.order_date < DATE '1997-01-01' GROUP BY TO_CHAR(o.order_date, 'YYYY-MM') ORDER BY month",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW096",
+      "name": "NW096 Monthly revenue in 1997",
+      "category": "time_series",
+      "difficulty": "medium",
+      "prompt": "按月统计 1997 年折后净销售额。返回 month（YYYY-MM）和两位小数的 net_revenue，按 month 升序。",
+      "reference_sql": "SELECT TO_CHAR(o.order_date, 'YYYY-MM') AS month, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1997-01-01' AND o.order_date < DATE '1998-01-01' GROUP BY TO_CHAR(o.order_date, 'YYYY-MM') ORDER BY month",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW097",
+      "name": "NW097 Monthly revenue in 1998",
+      "category": "time_series",
+      "difficulty": "medium",
+      "prompt": "按月统计 1998 年折后净销售额。返回 month（YYYY-MM）和两位小数的 net_revenue，按 month 升序。",
+      "reference_sql": "SELECT TO_CHAR(o.order_date, 'YYYY-MM') AS month, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1998-01-01' AND o.order_date < DATE '1999-01-01' GROUP BY TO_CHAR(o.order_date, 'YYYY-MM') ORDER BY month",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW098",
+      "name": "NW098 Monthly orders in 1996",
+      "category": "time_series",
+      "difficulty": "easy",
+      "prompt": "按月统计 1996 年订单量。返回 month（YYYY-MM）和 order_count，按 month 升序。",
+      "reference_sql": "SELECT TO_CHAR(order_date, 'YYYY-MM') AS month, COUNT(*)::int AS order_count FROM orders WHERE order_date >= DATE '1996-01-01' AND order_date < DATE '1997-01-01' GROUP BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY month",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW099",
+      "name": "NW099 Monthly orders in 1997",
+      "category": "time_series",
+      "difficulty": "easy",
+      "prompt": "按月统计 1997 年订单量。返回 month（YYYY-MM）和 order_count，按 month 升序。",
+      "reference_sql": "SELECT TO_CHAR(order_date, 'YYYY-MM') AS month, COUNT(*)::int AS order_count FROM orders WHERE order_date >= DATE '1997-01-01' AND order_date < DATE '1998-01-01' GROUP BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY month",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW100",
+      "name": "NW100 Monthly orders in 1998",
+      "category": "time_series",
+      "difficulty": "easy",
+      "prompt": "按月统计 1998 年订单量。返回 month（YYYY-MM）和 order_count，按 month 升序。",
+      "reference_sql": "SELECT TO_CHAR(order_date, 'YYYY-MM') AS month, COUNT(*)::int AS order_count FROM orders WHERE order_date >= DATE '1998-01-01' AND order_date < DATE '1999-01-01' GROUP BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY month",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW101",
+      "name": "NW101 Average order value in 1996",
+      "category": "business_metric",
+      "difficulty": "hard",
+      "prompt": "计算 1996 年平均订单折后净销售额。先按订单汇总，再求平均。只返回 order_year 和两位小数的 avg_order_value。",
+      "reference_sql": "WITH order_values AS ( SELECT o.order_id, SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)) AS order_value FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1996-01-01' AND o.order_date < DATE '1997-01-01' GROUP BY o.order_id ) SELECT 1996::int AS order_year, ROUND(AVG(order_value), 2) AS avg_order_value FROM order_values",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW102",
+      "name": "NW102 Average order value in 1997",
+      "category": "business_metric",
+      "difficulty": "hard",
+      "prompt": "计算 1997 年平均订单折后净销售额。先按订单汇总，再求平均。只返回 order_year 和两位小数的 avg_order_value。",
+      "reference_sql": "WITH order_values AS ( SELECT o.order_id, SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)) AS order_value FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1997-01-01' AND o.order_date < DATE '1998-01-01' GROUP BY o.order_id ) SELECT 1997::int AS order_year, ROUND(AVG(order_value), 2) AS avg_order_value FROM order_values",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW103",
+      "name": "NW103 Average order value in 1998",
+      "category": "business_metric",
+      "difficulty": "hard",
+      "prompt": "计算 1998 年平均订单折后净销售额。先按订单汇总，再求平均。只返回 order_year 和两位小数的 avg_order_value。",
+      "reference_sql": "WITH order_values AS ( SELECT o.order_id, SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)) AS order_value FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1998-01-01' AND o.order_date < DATE '1999-01-01' GROUP BY o.order_id ) SELECT 1998::int AS order_year, ROUND(AVG(order_value), 2) AS avg_order_value FROM order_values",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW104",
+      "name": "NW104 Shipping delay for Alliance Shippers",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算 Alliance Shippers 已发货订单从下单到发货的平均天数。只返回 shipper_name 和两位小数的 avg_ship_days。",
+      "reference_sql": "SELECT s.company_name AS shipper_name, ROUND(AVG(o.shipped_date - o.order_date)::numeric, 2) AS avg_ship_days FROM shippers s JOIN orders o ON o.ship_via = s.shipper_id WHERE s.company_name = 'Alliance Shippers' AND o.shipped_date IS NOT NULL GROUP BY s.company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW105",
+      "name": "NW105 Shipping delay for DHL",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算 DHL 已发货订单从下单到发货的平均天数。只返回 shipper_name 和两位小数的 avg_ship_days。",
+      "reference_sql": "SELECT s.company_name AS shipper_name, ROUND(AVG(o.shipped_date - o.order_date)::numeric, 2) AS avg_ship_days FROM shippers s JOIN orders o ON o.ship_via = s.shipper_id WHERE s.company_name = 'DHL' AND o.shipped_date IS NOT NULL GROUP BY s.company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW106",
+      "name": "NW106 Shipping delay for Federal Shipping",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算 Federal Shipping 已发货订单从下单到发货的平均天数。只返回 shipper_name 和两位小数的 avg_ship_days。",
+      "reference_sql": "SELECT s.company_name AS shipper_name, ROUND(AVG(o.shipped_date - o.order_date)::numeric, 2) AS avg_ship_days FROM shippers s JOIN orders o ON o.ship_via = s.shipper_id WHERE s.company_name = 'Federal Shipping' AND o.shipped_date IS NOT NULL GROUP BY s.company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW107",
+      "name": "NW107 Shipping delay for Speedy Express",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算 Speedy Express 已发货订单从下单到发货的平均天数。只返回 shipper_name 和两位小数的 avg_ship_days。",
+      "reference_sql": "SELECT s.company_name AS shipper_name, ROUND(AVG(o.shipped_date - o.order_date)::numeric, 2) AS avg_ship_days FROM shippers s JOIN orders o ON o.ship_via = s.shipper_id WHERE s.company_name = 'Speedy Express' AND o.shipped_date IS NOT NULL GROUP BY s.company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW108",
+      "name": "NW108 Shipping delay for UPS",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算 UPS 已发货订单从下单到发货的平均天数。只返回 shipper_name 和两位小数的 avg_ship_days。",
+      "reference_sql": "SELECT s.company_name AS shipper_name, ROUND(AVG(o.shipped_date - o.order_date)::numeric, 2) AS avg_ship_days FROM shippers s JOIN orders o ON o.ship_via = s.shipper_id WHERE s.company_name = 'UPS' AND o.shipped_date IS NOT NULL GROUP BY s.company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW109",
+      "name": "NW109 Shipping delay for United Package",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算 United Package 已发货订单从下单到发货的平均天数。只返回 shipper_name 和两位小数的 avg_ship_days。",
+      "reference_sql": "SELECT s.company_name AS shipper_name, ROUND(AVG(o.shipped_date - o.order_date)::numeric, 2) AS avg_ship_days FROM shippers s JOIN orders o ON o.ship_via = s.shipper_id WHERE s.company_name = 'United Package' AND o.shipped_date IS NOT NULL GROUP BY s.company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW110",
+      "name": "NW110 Revenue for employee Buchanan",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Buchanan 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Buchanan' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW111",
+      "name": "NW111 Revenue for employee Callahan",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Callahan 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Callahan' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW112",
+      "name": "NW112 Revenue for employee Davolio",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Davolio 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Davolio' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW113",
+      "name": "NW113 Revenue for employee Dodsworth",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Dodsworth 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Dodsworth' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW114",
+      "name": "NW114 Revenue for employee Fuller",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Fuller 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Fuller' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW115",
+      "name": "NW115 Revenue for employee King",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 King 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'King' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW116",
+      "name": "NW116 Revenue for employee Leverling",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Leverling 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Leverling' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW117",
+      "name": "NW117 Revenue for employee Peacock",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Peacock 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Peacock' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW118",
+      "name": "NW118 Revenue for employee Suyama",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算姓氏为 Suyama 的员工负责订单的全部折后净销售额。返回 employee_name 和两位小数的 net_revenue。",
+      "reference_sql": "SELECT e.first_name || ' ' || e.last_name AS employee_name, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM employees e JOIN orders o ON o.employee_id = e.employee_id JOIN order_details od ON od.order_id = o.order_id WHERE e.last_name = 'Suyama' GROUP BY e.employee_id, e.first_name, e.last_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW119",
+      "name": "NW119 Overall on-time shipping rate",
+      "category": "business_metric",
+      "difficulty": "medium",
+      "prompt": "计算所有已发货订单中按时发货（shipped_date <= required_date）的比例。只返回 shipped_orders 和两位小数的 on_time_pct。",
+      "reference_sql": "SELECT COUNT(*)::int AS shipped_orders, ROUND(100.0 * COUNT(*) FILTER (WHERE shipped_date <= required_date) / NULLIF(COUNT(*), 0), 2) AS on_time_pct FROM orders WHERE shipped_date IS NOT NULL",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW120",
+      "name": "NW120 Null customer region",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customers.region 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'region' AS field_name, COUNT(*) FILTER (WHERE region IS NULL)::int AS null_count FROM customers",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW121",
+      "name": "NW121 Null customer postal_code",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customers.postal_code 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'postal_code' AS field_name, COUNT(*) FILTER (WHERE postal_code IS NULL)::int AS null_count FROM customers",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW122",
+      "name": "NW122 Null customer phone",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customers.phone 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'phone' AS field_name, COUNT(*) FILTER (WHERE phone IS NULL)::int AS null_count FROM customers",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW123",
+      "name": "NW123 Null customer fax",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customers.fax 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'fax' AS field_name, COUNT(*) FILTER (WHERE fax IS NULL)::int AS null_count FROM customers",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW124",
+      "name": "NW124 Null customer contact_name",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customers.contact_name 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'contact_name' AS field_name, COUNT(*) FILTER (WHERE contact_name IS NULL)::int AS null_count FROM customers",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW125",
+      "name": "NW125 Null order shipped_date",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 orders.shipped_date 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'shipped_date' AS field_name, COUNT(*) FILTER (WHERE shipped_date IS NULL)::int AS null_count FROM orders",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW126",
+      "name": "NW126 Null order ship_region",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 orders.ship_region 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'ship_region' AS field_name, COUNT(*) FILTER (WHERE ship_region IS NULL)::int AS null_count FROM orders",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW127",
+      "name": "NW127 Null order ship_postal_code",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 orders.ship_postal_code 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'ship_postal_code' AS field_name, COUNT(*) FILTER (WHERE ship_postal_code IS NULL)::int AS null_count FROM orders",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW128",
+      "name": "NW128 Null order customer_id",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 orders.customer_id 的空值数量。只返回 field_name 和 null_count。",
+      "reference_sql": "SELECT 'customer_id' AS field_name, COUNT(*) FILTER (WHERE customer_id IS NULL)::int AS null_count FROM orders",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW129",
+      "name": "NW129 Product check discontinued",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "统计已停产产品数量。只返回 check_name 和 product_count。",
+      "reference_sql": "SELECT 'discontinued' AS check_name, COUNT(*)::int AS product_count FROM products WHERE discontinued <> 0",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW130",
+      "name": "NW130 Product check zero_stock",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "统计零库存产品数量。只返回 check_name 和 product_count。",
+      "reference_sql": "SELECT 'zero_stock' AS check_name, COUNT(*)::int AS product_count FROM products WHERE units_in_stock = 0",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW131",
+      "name": "NW131 Product check at_or_below_reorder",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "统计库存不高于补货点的产品数量。只返回 check_name 和 product_count。",
+      "reference_sql": "SELECT 'at_or_below_reorder' AS check_name, COUNT(*)::int AS product_count FROM products WHERE units_in_stock <= reorder_level",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW132",
+      "name": "NW132 Product check units_on_order",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "统计已有在途订货的产品数量。只返回 check_name 和 product_count。",
+      "reference_sql": "SELECT 'units_on_order' AS check_name, COUNT(*)::int AS product_count FROM products WHERE units_on_order > 0",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW133",
+      "name": "NW133 Empty table customer_demographics",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customer_demographics 表的行数。只返回 table_name 和 row_count，即使结果为 0 也要返回。",
+      "reference_sql": "SELECT 'customer_demographics' AS table_name, COUNT(*)::int AS row_count FROM customer_demographics",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW134",
+      "name": "NW134 Empty table customer_customer_demo",
+      "category": "data_quality",
+      "difficulty": "easy",
+      "prompt": "检查 customer_customer_demo 表的行数。只返回 table_name 和 row_count，即使结果为 0 也要返回。",
+      "reference_sql": "SELECT 'customer_customer_demo' AS table_name, COUNT(*)::int AS row_count FROM customer_customer_demo",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW135",
+      "name": "NW135 Duplicate customer companies",
+      "category": "data_quality",
+      "difficulty": "medium",
+      "prompt": "查找 company_name 完全重复的客户公司。返回 company_name 和 duplicate_count；没有重复时返回空结果。",
+      "reference_sql": "SELECT company_name, COUNT(*)::int AS duplicate_count FROM customers GROUP BY company_name HAVING COUNT(*) > 1 ORDER BY company_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 4
+      }
+    },
+    {
+      "case_key": "NW136",
+      "name": "NW136 Category report for Beverages",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Beverages 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Beverages' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW137",
+      "name": "NW137 Category report for Condiments",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Condiments 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Condiments' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW138",
+      "name": "NW138 Category report for Confections",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Confections 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Confections' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW139",
+      "name": "NW139 Category report for Dairy Products",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Dairy Products 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Dairy Products' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW140",
+      "name": "NW140 Category report for Grains/Cereals",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Grains/Cereals 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Grains/Cereals' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW141",
+      "name": "NW141 Category report for Meat/Poultry",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Meat/Poultry 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Meat/Poultry' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW142",
+      "name": "NW142 Category report for Produce",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Produce 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Produce' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW143",
+      "name": "NW143 Category report for Seafood",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "分析 Seafood 分类的产品数量、当前库存数量和按当前单价计算的库存价值，并创建一份报告。报告必须包含文字结论。用于报告的最终查询只返回 category_name、product_count、units_in_stock 和两位小数的 inventory_value。",
+      "reference_sql": "SELECT c.category_name, COUNT(p.product_id)::int AS product_count, COALESCE(SUM(p.units_in_stock), 0)::int AS units_in_stock, ROUND(COALESCE(SUM(p.unit_price::numeric * p.units_in_stock), 0), 2) AS inventory_value FROM categories c LEFT JOIN products p ON p.category_id = c.category_id WHERE c.category_name = 'Seafood' GROUP BY c.category_name",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW144",
+      "name": "NW144 Annual sales report 1997",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "生成 1997 年销售概览报告，包含订单量、折后净销售额和平均运费，并给出文字结论。用于报告的最终查询只返回 order_year、order_count、两位小数的 net_revenue 和 avg_freight。",
+      "reference_sql": "WITH order_summary AS ( SELECT COUNT(*)::int AS order_count, ROUND(AVG(freight::numeric), 2) AS avg_freight FROM orders WHERE order_date >= DATE '1997-01-01' AND order_date < DATE '1998-01-01' ), revenue_summary AS ( SELECT ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1997-01-01' AND o.order_date < DATE '1998-01-01' ) SELECT 1997::int AS order_year, os.order_count, rs.net_revenue, os.avg_freight FROM order_summary os CROSS JOIN revenue_summary rs",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW145",
+      "name": "NW145 Annual sales report 1998",
+      "category": "report",
+      "difficulty": "hard",
+      "prompt": "生成 1998 年销售概览报告，包含订单量、折后净销售额和平均运费，并给出文字结论。用于报告的最终查询只返回 order_year、order_count、两位小数的 net_revenue 和 avg_freight。",
+      "reference_sql": "WITH order_summary AS ( SELECT COUNT(*)::int AS order_count, ROUND(AVG(freight::numeric), 2) AS avg_freight FROM orders WHERE order_date >= DATE '1998-01-01' AND order_date < DATE '1999-01-01' ), revenue_summary AS ( SELECT ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM orders o JOIN order_details od ON od.order_id = o.order_id WHERE o.order_date >= DATE '1998-01-01' AND o.order_date < DATE '1999-01-01' ) SELECT 1998::int AS order_year, os.order_count, rs.net_revenue, os.avg_freight FROM order_summary os CROSS JOIN revenue_summary rs",
+      "expected_tools": [
+        "execute_sql",
+        "create_report"
+      ],
+      "expect_report": true,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql",
+          "create_report"
+        ],
+        "expect_report": true,
+        "evidence_required": true,
+        "max_tool_calls": 7
+      }
+    },
+    {
+      "case_key": "NW146",
+      "name": "NW146 Customer order frequency distribution",
+      "category": "advanced",
+      "difficulty": "hard",
+      "prompt": "计算客户订单频次分布：先统计每个客户的订单数，再统计每种订单数对应的客户数量。返回 order_count 和 customer_count，按 order_count 升序。没有订单的客户也要计入 order_count=0。",
+      "reference_sql": "WITH customer_orders AS ( SELECT c.customer_id, COUNT(o.order_id)::int AS order_count FROM customers c LEFT JOIN orders o ON o.customer_id = c.customer_id GROUP BY c.customer_id ) SELECT order_count, COUNT(*)::int AS customer_count FROM customer_orders GROUP BY order_count ORDER BY order_count",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 6
+      }
+    },
+    {
+      "case_key": "NW147",
+      "name": "NW147 Product reorder risk",
+      "category": "advanced",
+      "difficulty": "hard",
+      "prompt": "列出仍在售且现有库存加在途库存不高于补货点的产品。返回 product_name、units_in_stock、units_on_order 和 reorder_level，按 product_name 升序。",
+      "reference_sql": "SELECT product_name, units_in_stock, units_on_order, reorder_level FROM products WHERE discontinued = 0 AND units_in_stock + units_on_order <= reorder_level ORDER BY product_name",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW148",
+      "name": "NW148 Late shipment rate by country",
+      "category": "advanced",
+      "difficulty": "hard",
+      "prompt": "按收货国家计算已发货订单的晚发货比例，晚发货定义为 shipped_date > required_date。返回 ship_country、shipped_orders 和两位小数的 late_pct，按 late_pct 降序、ship_country 升序。",
+      "reference_sql": "SELECT ship_country, COUNT(*)::int AS shipped_orders, ROUND(100.0 * COUNT(*) FILTER (WHERE shipped_date > required_date) / NULLIF(COUNT(*), 0), 2) AS late_pct FROM orders WHERE shipped_date IS NOT NULL GROUP BY ship_country ORDER BY late_pct DESC, ship_country ASC",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    },
+    {
+      "case_key": "NW149",
+      "name": "NW149 Customer value ranking",
+      "category": "advanced",
+      "difficulty": "hard",
+      "prompt": "列出折后净销售额最高的 10 个客户，并同时给出最后下单日期和订单数。返回 company_name、last_order_date、order_count 和两位小数的 net_revenue，按 net_revenue 降序、company_name 升序。",
+      "reference_sql": "SELECT c.company_name, MAX(o.order_date) AS last_order_date, COUNT(DISTINCT o.order_id)::int AS order_count, ROUND(SUM(od.unit_price::numeric * od.quantity * (1 - od.discount::numeric)), 2) AS net_revenue FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN order_details od ON od.order_id = o.order_id GROUP BY c.customer_id, c.company_name ORDER BY net_revenue DESC, c.company_name ASC LIMIT 10",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 6
+      }
+    },
+    {
+      "case_key": "NW150",
+      "name": "NW150 Employee reporting hierarchy",
+      "category": "advanced",
+      "difficulty": "medium",
+      "prompt": "统计每位经理的直接下属人数。返回 manager_name 和 direct_reports，按 direct_reports 降序、manager_name 升序。只返回至少有一名下属的经理。",
+      "reference_sql": "SELECT m.first_name || ' ' || m.last_name AS manager_name, COUNT(e.employee_id)::int AS direct_reports FROM employees m JOIN employees e ON e.reports_to = m.employee_id GROUP BY m.employee_id, m.first_name, m.last_name ORDER BY direct_reports DESC, manager_name ASC",
+      "expected_tools": [
+        "execute_sql"
+      ],
+      "expect_report": false,
+      "acceptance": {
+        "data_match": "exact_rows_ignore_order",
+        "required_tools": [
+          "execute_sql"
+        ],
+        "expect_report": false,
+        "evidence_required": true,
+        "max_tool_calls": 5
+      }
+    }
+  ]
+}

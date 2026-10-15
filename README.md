@@ -19,6 +19,8 @@ The application database is the Compose PostgreSQL service. Any business Postgre
 - Data-source passwords are encrypted with the Fernet key in `FIELD_ENCRYPTION_KEY`.
 - Uploaded files and all API resources are scoped to the authenticated user.
 
+This project includes nao's `example/jaffle_shop.duckdb` as a mounted, read-only sample source. In the attachment menu, choose one or more **jaffle_shop tables**; the agent receives only their schemas and can query only the selected table names.
+
 This project is inspired by nao's Apache-2.0-licensed tool-schema and agent-loop design, but is a Python implementation with a narrower scope.
 
 ## Connect Codex or another MCP client
@@ -37,3 +39,19 @@ powershell -ExecutionPolicy Bypass -File scripts/test-stack.ps1
 ```
 
 For a failed runtime request, inspect `docker compose logs -f api`. Configuration errors prevent the API from starting; model authentication errors are returned to the UI as `LLM_AUTH_FAILED` with a remediation action.
+
+## Reproducible agent benchmark
+
+The versioned Northwind benchmark contains 150 deterministic reference-SQL cases plus a lock file. Validate the committed fixture with:
+
+```powershell
+python scripts/generate_northwind_eval_cases.py --check
+```
+
+Prepare the pinned, read-only PostgreSQL dataset with:
+
+```powershell
+python scripts/bootstrap_northwind_eval.py --download --start
+```
+
+See `docs/agent-evolution/evaluation-plan.md` for the import API, scoring contract, smoke/full run order, and comparison metrics.

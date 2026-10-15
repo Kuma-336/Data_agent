@@ -16,12 +16,15 @@ services:
   api:
     build: ./backend
     env_file: ${DATA_AGENT_ENV_FILE:-.env}
+    ports: ["8000:8000"]
+    volumes:
+      - app_data:/data
+      - ../example/jaffle_shop.duckdb:/seed/jaffle_shop.duckdb:ro
     environment:
       DATABASE_URL: postgresql+psycopg://data_agent:data_agent@db:5432/data_agent
       REDIS_URL: redis://redis:6379/0
       DATA_DIR: /data
-    ports: ["8000:8000"]
-    volumes: [app_data:/data]
+      JAFFLE_SHOP_DATABASE_PATH: /seed/jaffle_shop.duckdb
     depends_on:
       db: { condition: service_healthy }
       redis: { condition: service_started }

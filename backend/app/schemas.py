@@ -43,6 +43,7 @@ class ChatMessageInput(BaseModel):
     content: str = Field(min_length=1, max_length=20_000)
     file_ids: list[str] = []
     connection_ids: list[str] = []
+    jaffle_shop_tables: list[str] = Field(default_factory=list, max_length=20)
 
 
 class ChartSpec(BaseModel):

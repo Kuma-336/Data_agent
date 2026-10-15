@@ -1,0 +1,23 @@
+name: data-agent-eval
+
+services:
+  northwind-eval-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: northwind_admin
+      POSTGRES_PASSWORD: northwind_admin
+      POSTGRES_DB: northwind
+    ports:
+      - "55432:5432"
+    volumes:
+      - northwind_eval_v1_data:/var/lib/postgresql/data
+      - ./backend/test-data/northwind/northwind.sql:/docker-entrypoint-initdb.d/10-northwind.sql:ro
+      - ./evals/northwind/20-create-reader.sql:/docker-entrypoint-initdb.d/20-create-reader.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U northwind_admin -d northwind"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  northwind_eval_v1_data:

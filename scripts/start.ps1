@@ -17,7 +17,7 @@ if (-not (docker ps -aq -f name=^/data-agent-redis$)) { docker run -d --name dat
 docker build -t personal-data-agent-api backend
 docker build -t personal-data-agent-web frontend
 if (-not (docker ps -aq -f name=^/data-agent-api$)) {
-  docker run -d --name data-agent-api --restart unless-stopped --network data-agent-network --env-file .env -e DATABASE_URL=postgresql+psycopg://data_agent:data_agent@data-agent-db:5432/data_agent -e REDIS_URL=redis://data-agent-redis:6379/0 -e DATA_DIR=/data -v data-agent-files:/data -p 8000:8000 personal-data-agent-api
+  docker run -d --name data-agent-api --restart unless-stopped --network data-agent-network --env-file .env -e DATABASE_URL=postgresql+psycopg://data_agent:data_agent@data-agent-db:5432/data_agent -e REDIS_URL=redis://data-agent-redis:6379/0 -e DATA_DIR=/data -e JAFFLE_SHOP_DATABASE_PATH=/seed/jaffle_shop.duckdb -v data-agent-files:/data -v "${PWD}\..\example\jaffle_shop.duckdb:/seed/jaffle_shop.duckdb:ro" -p 8000:8000 personal-data-agent-api
 }
 if (-not (docker ps -aq -f name=^/data-agent-worker$)) {
   docker run -d --name data-agent-worker --restart unless-stopped --network data-agent-network --env-file .env -e DATABASE_URL=postgresql+psycopg://data_agent:data_agent@data-agent-db:5432/data_agent -e REDIS_URL=redis://data-agent-redis:6379/0 personal-data-agent-api dramatiq app.worker
