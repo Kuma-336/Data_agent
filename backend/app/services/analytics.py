@@ -33,7 +33,10 @@ def profile_frame(frame: pd.DataFrame) -> dict:
     for name in frame.columns:
         series = frame[name]
         present = series.dropna()
-        item = {"name": str(name), "dtype": str(series.dtype), "null_count": int(series.isna().sum()), "distinct_count": int(series.nunique(dropna=True)), "sample_values": [str(value) for value in present.head(5).tolist()]}
+        item = {"name": str(name), "dtype": str(series.dtype), "null_count": int(series.isna().sum()), "sample_values": [str(value) for value in present.head(5).tolist()]}
+        distinct = _distinct_count(series)
+        if distinct is not None:
+            item["distinct_count"] = distinct
         if pd.api.types.is_numeric_dtype(series) and not present.empty:
             item["min"] = float(series.min())
             item["max"] = float(series.max())
@@ -41,21 +44,38 @@ def profile_frame(frame: pd.DataFrame) -> dict:
         elif pd.api.types.is_datetime64_any_dtype(series) and not present.empty:
             item["min"] = str(series.min())
             item["max"] = str(series.max())
-        top_values = _top_values(present)
+        top_values = _top_values(present, distinct)
         if top_values:
             item["top_values"] = top_values
         fields.append(item)
-    return {"row_count": int(len(frame)), "column_count": int(len(frame.columns)), "duplicate_rows": int(frame.duplicated().sum()), "fields": fields}
+    return {"row_count": int(len(frame)), "column_count": int(len(frame.columns)), "duplicate_rows": _duplicate_rows(frame), "fields": fields}
 
 
-def _top_values(present: pd.Series) -> list[dict] | None:
-    """Only categorical columns need exact values; numerics are summarised by min/max/mean."""
-    if present.empty or pd.api.types.is_numeric_dtype(present) or pd.api.types.is_datetime64_any_dtype(present):
+def _distinct_count(series: pd.Series) -> int | None:
+    """None for columns pandas cannot hash, such as JSON holding dicts or lists."""
+    try:
+        return int(series.nunique(dropna=True))
+    except TypeError:
         return None
-    distinct = int(present.nunique())
+
+
+def _duplicate_rows(frame: pd.DataFrame) -> int | None:
+    try:
+        return int(frame.duplicated().sum())
+    except TypeError:
+        return None
+
+
+def _top_values(present: pd.Series, distinct: int | None) -> list[dict] | None:
+    """Only categorical columns need exact values; numerics are summarised by min/max/mean."""
+    if distinct is None or present.empty or pd.api.types.is_numeric_dtype(present) or pd.api.types.is_datetime64_any_dtype(present):
+        return None
     if distinct == 0 or distinct > settings.context_profile_max_distinct or distinct == len(present):
         return None
-    counts = present.value_counts().head(settings.context_profile_top_values)
+    try:
+        counts = present.value_counts().head(settings.context_profile_top_values)
+    except TypeError:
+        return None
     return [{"value": str(value), "count": int(count)} for value, count in counts.items()]
 
 

@@ -137,7 +137,7 @@ def render_profiling_document(table: str, database: str, profile: dict, sampled_
         "",
         f"**Columns:** {profile.get('column_count', 0)}",
         "",
-        f"**Duplicate rows in sample:** {profile.get('duplicate_rows', 0):,}",
+        f"**Duplicate rows in sample:** {_count(profile.get('duplicate_rows'))}",
         "",
         "## Column Profiles (JSONL)",
         "",
@@ -157,6 +157,11 @@ def render_preview_document(table: str, database: str, rows: pd.DataFrame) -> st
         lines.append(f"- {json.dumps(record, ensure_ascii=False, default=str)}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _count(value: int | None) -> str:
+    """Statistics are None for columns pandas cannot hash, such as json holding dicts."""
+    return f"{value:,}" if value is not None else "not computable for these column types"
 
 
 def _column_annotations(column: dict) -> str:

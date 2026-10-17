@@ -9,7 +9,7 @@ from app.main import app
 from app.models import DataSource, UploadedFile, User
 from app.services import context_store
 from app.services.prompt import build_system_prompt, database_context
-from app.services.context_sync import render_columns_document
+from app.services.context_sync import render_columns_document, render_profiling_document
 
 SAMPLE_CSV = b"name,status,amount\nA,completed,10\nB,completed,20\nC,returned,30\nD,placed,40\n"
 
@@ -146,3 +146,45 @@ def test_system_prompt_inlines_rules_and_replaces_the_schema_dump():
     assert "top_values" in prompt
     # The truncated schema dump is gone; the schema now lives in the per-table documents.
     assert "; schema=" not in prompt
+
+
+def test_json_columns_do_not_break_profiling():
+    """Real PostgreSQL tables carry json/jsonb columns whose values pandas cannot hash."""
+    import pandas as pd
+
+    from app.services.analytics import profile_frame
+
+    frame = pd.DataFrame(
+        {
+            "id": [1, 2, 3],
+            "resources": [{"file_ids": []}, {"file_ids": ["a"]}, {"file_ids": []}],
+            "plan": [[{"title": "x"}], [], []],
+            "status": ["running", "completed", "completed"],
+        }
+    )
+
+    profile = profile_frame(frame)
+    by_name = {field["name"]: field for field in profile["fields"]}
+
+    assert profile["column_count"] == 4
+    assert profile["duplicate_rows"] is None
+    assert "distinct_count" not in by_name["resources"]
+    assert "top_values" not in by_name["plan"]
+    assert by_name["resources"]["sample_values"][0] == "{'file_ids': []}"
+    # A hashable column alongside them still gets full statistics.
+    assert by_name["status"]["distinct_count"] == 2
+    assert by_name["status"]["top_values"] == [{"value": "completed", "count": 2}, {"value": "running", "count": 1}]
+
+
+def test_a_profile_with_unhashable_columns_still_renders():
+    """The producer returning None is only half the fix; the renderer must accept it."""
+    import pandas as pd
+
+    from app.services.analytics import profile_frame
+
+    frame = pd.DataFrame({"id": [1, 2], "resources": [{"a": 1}, {"a": 2}]})
+    document = render_profiling_document("public.agent_runs", "data_agent", profile_frame(frame), len(frame))
+
+    assert "**Duplicate rows in sample:** not computable for these column types" in document
+    assert '"name": "resources"' in document
+    assert "**Columns:** 2" in document
