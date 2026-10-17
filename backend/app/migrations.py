@@ -20,6 +20,7 @@ def upgrade_schema() -> None:
         "ALTER TABLE eval_cases ADD COLUMN IF NOT EXISTS difficulty VARCHAR(24) NULL",
         "ALTER TABLE eval_cases ADD COLUMN IF NOT EXISTS acceptance JSON NULL",
         "ALTER TABLE data_sources ADD COLUMN IF NOT EXISTS context_synced_at TIMESTAMP NULL",
+        "ALTER TABLE agent_steps ALTER COLUMN kind TYPE VARCHAR(32)",
     ]
     with engine.begin() as connection:
         for statement in statements:

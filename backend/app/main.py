@@ -13,7 +13,7 @@ from .db import Base, engine, get_db
 from .migrations import upgrade_schema
 from .dependencies import current_user
 from .errors import ApiError, normalize_error
-from .models import AgentRun, ChartArtifact, Chat, DataProfile, DataSource, EvalCase, EvalCaseResult, EvalRun, EvalSuite, ExportArtifact, Memory, Message, MessagePart, ProjectContextDocument, QueryResult, Report, ReportVersion, UploadedFile, User
+from .models import AgentRun, ChartArtifact, Chat, DataProfile, DataSource, EvalCase, EvalCaseResult, EvalRun, EvalSuite, ExportArtifact, Memory, Message, MessagePart, PendingApproval, ProjectContextDocument, QueryResult, Report, ReportVersion, UploadedFile, User
 from .schemas import ChatCreate, ChatMessageInput, DataSourceInput, DataSourceOut, LoginInput, RegisterInput, UserOut
 from .security import create_access_token, create_mcp_token, decode_mcp_token, decrypt_secret, encrypt_secret, hash_password, verify_password
 from .services.agent import run_agent
@@ -26,6 +26,7 @@ from .services.mcp import call_tool as mcp_call_tool, jsonrpc_error, jsonrpc_res
 from .services.runs import serialize_run, start_run, verify_run
 from .services.jaffle_shop import list_tables as list_jaffle_shop_tables
 from .services.eval_fixtures import import_fixture
+from .services.approvals import decide as decide_approval_request, serialize as serialize_approval
 from .services import context_store
 from .services.context_store import ContextTarget
 from .services.context_sync import sync_connection_context, sync_file_context, sync_sample_context
@@ -289,6 +290,9 @@ def send_message(chat_id: str, payload: ChatMessageInput, user: User = Depends(c
             chat.updated_at = datetime.now(timezone.utc)
             db.commit()
             yield _sse("tool", {"name": "verifier", "input": {}, "output": {"run_id": run.id, **verifier}})
+            pending = [serialize_approval(item) for item in _pending_approvals(db, user.id, chat.id)]
+            if pending:
+                yield _sse("pending_approval", {"run_id": run.id, "approvals": pending})
             yield _sse("answer", {"content": answer, "tool_events": events, "run_id": run.id, "verifier": verifier})
         except Exception as exc:
             run.status = "failed"; db.commit()
@@ -507,6 +511,23 @@ def write_context_rules(kind: str, asset_id: str, payload: dict, user: User = De
     return {"target": target.reference, "content": context_store.read_rules(target) or ""}
 
 
+@app.get("/approvals")
+def list_approvals(chat_id: str | None = None, pending: bool = True, user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+    if pending and chat_id is not None:
+        return [serialize_approval(item) for item in _pending_approvals(db, user.id, chat_id)]
+    query = db.query(PendingApproval).filter(PendingApproval.user_id == user.id)
+    if chat_id is not None:
+        query = query.filter(PendingApproval.chat_id == chat_id)
+    if pending:
+        query = query.filter(PendingApproval.decision.is_(None))
+    return [serialize_approval(item) for item in query.order_by(PendingApproval.created_at.desc()).all()]
+
+
+@app.post("/approvals/{approval_id}")
+def decide_approval(approval_id: str, payload: dict, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+    return serialize_approval(decide_approval_request(db, user, approval_id, str(payload.get("decision", ""))))
+
+
 @app.get("/context-documents")
 def list_context_documents(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
     return [{"id": item.id, "name": item.name, "path": item.path, "content": item.content, "updated_at": item.updated_at} for item in db.query(ProjectContextDocument).filter(ProjectContextDocument.user_id == user.id).all()]
@@ -629,6 +650,15 @@ def _source_for_user(db: Session, user_id: str, source_id: str) -> DataSource:
     if not source:
         raise HTTPException(404, "Data source not found")
     return source
+
+
+def _pending_approvals(db: Session, user_id: str, chat_id: str) -> list[PendingApproval]:
+    return (
+        db.query(PendingApproval)
+        .filter(PendingApproval.user_id == user_id, PendingApproval.chat_id == chat_id, PendingApproval.decision.is_(None))
+        .order_by(PendingApproval.created_at.desc())
+        .all()
+    )
 
 
 def _file_for_user(db: Session, user_id: str, file_id: str) -> UploadedFile:

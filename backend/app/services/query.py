@@ -24,6 +24,7 @@ def execute_local(db: Session, user: User, chat_id: str, file: UploadedFile, sql
     path = Path(file.storage_path)
     conn = duckdb.connect()
     try:
+        _apply_duckdb_timeout(conn)
         if path.suffix.lower() == ".csv":
             # Follow nao's local-query approach: expose the verified storage file to
             # DuckDB before running user SQL, instead of interpolating or binding a
@@ -80,6 +81,15 @@ def execute_jaffle_shop(db: Session, user: User, chat_id: str, tables: list[str]
     safe_sql = validate_readonly_sql(sql, settings.max_query_rows)
     columns, rows, executed_sql = execute_jaffle_shop_query(safe_sql, tables, settings.max_query_rows)
     return _save_result(db, user.id, chat_id, columns, rows, executed_sql, f"jaffle_shop:{','.join(sorted(tables))}")
+
+
+def _apply_duckdb_timeout(connection) -> None:
+    """DuckDB has no statement timeout of its own; bound it the way Postgres is bounded."""
+    try:
+        connection.execute(f"SET statement_timeout = '{int(settings.local_query_timeout_seconds)}s'")
+    except Exception:
+        # Older DuckDB builds do not expose the setting; the row cap still applies.
+        pass
 
 
 def _save_result(db: Session, user_id: str, chat_id: str, columns: list[str], rows: list[dict], sql: str, source: str) -> QueryResult:

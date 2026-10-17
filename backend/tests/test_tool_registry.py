@@ -35,7 +35,9 @@ def test_only_clarify_ends_the_turn():
 
 
 def test_unknown_tool_returns_an_error_instead_of_raising():
-    assert registry.dispatch("no_such_tool", {}, _context()) == {"error": "Unknown tool no_such_tool"}
+    result = registry.dispatch("no_such_tool", {}, _context())
+    assert result["error"] == "Unknown tool no_such_tool"
+    assert result["code"] == "invalid_input"
 
 
 def test_dispatch_converts_an_http_exception_into_a_retryable_error():
@@ -45,7 +47,10 @@ def test_dispatch_converts_an_http_exception_into_a_retryable_error():
         raise HTTPException(400, "Local query failed: no such column")
 
     local.register(Tool(name="boom", description="d", parameters={"type": "object", "properties": {}}, handler=failing))
-    assert local.dispatch("boom", {}, _context()) == {"error": "Local query failed: no such column", "retryable": True}
+    result = local.dispatch("boom", {}, _context())
+    assert result["error"] == "Local query failed: no such column"
+    assert result["retryable"] is True
+    assert result["code"] == "invalid_input"
 
 
 def test_dispatch_lets_unexpected_errors_surface():

@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/0"
     llm_context_window: int = 64_000
     llm_max_output_tokens: int = 4_096
+    llm_timeout_seconds: float = 120.0
+    local_query_timeout_seconds: int = 30
     # Persisted schema/profiling/rules context files, read on demand per database.
     context_max_tables: int = 200
     context_preview_rows: int = 10
@@ -29,6 +31,15 @@ class Settings(BaseSettings):
     context_profile_top_values: int = 10
     context_profile_max_distinct: int = 50
     context_max_rules_chars: int = 50_000
+    # Tool-call governance thresholds, read by the hook chain through ToolPolicy.
+    tool_max_calls_per_turn: int = 16
+    tool_max_iterations: int = 8
+    tool_turn_seconds: int = 180
+    tool_max_output_bytes: int = 24_000
+    tool_max_auto_retries: int = 1
+    tool_denied: str = ""
+    tool_approval_required: str = ""
+    tool_redacted_keys: str = "password,api_key,token,secret,connection_string,encrypted_password"
     # External agents can read user-owned data through MCP; opt in per deployment.
     mcp_enabled: bool = False
     mcp_subagent_enabled: bool = True
@@ -56,6 +67,22 @@ class Settings(BaseSettings):
     @property
     def allowed_hosts(self) -> set[str]:
         return {host.strip().lower() for host in self.allowed_db_hosts.split(",") if host.strip()}
+
+    @property
+    def denied_tools(self) -> frozenset[str]:
+        return _name_set(self.tool_denied)
+
+    @property
+    def approval_required_tools(self) -> frozenset[str]:
+        return _name_set(self.tool_approval_required)
+
+    @property
+    def redacted_keys(self) -> frozenset[str]:
+        return _name_set(self.tool_redacted_keys)
+
+
+def _name_set(value: str) -> frozenset[str]:
+    return frozenset(name.strip().lower() for name in value.split(",") if name.strip())
 
 
 settings = Settings()

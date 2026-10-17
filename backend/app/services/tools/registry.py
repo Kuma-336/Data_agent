@@ -7,8 +7,9 @@ scoped to the turn, uniform error shape, and whether a call ends the turn.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -16,6 +17,11 @@ from sqlalchemy.orm import Session
 from ...models import Chat, DataSource, UploadedFile, User
 from .. import context_store
 from ..context_store import ContextTarget
+from .errors import ErrorCode, error_from_http_exception, tool_error
+from .policy import Budget
+
+if TYPE_CHECKING:
+    from .hooks import Next, ToolHook, ToolInvocation
 
 
 @dataclass(frozen=True)
@@ -28,6 +34,8 @@ class ToolContext:
     files: list[UploadedFile] = field(default_factory=list)
     sources: list[DataSource] = field(default_factory=list)
     jaffle_shop_tables: list[str] = field(default_factory=list)
+    # Frozen forbids rebinding the field, not mutating the budget it points to.
+    budget: Budget = field(default_factory=Budget)
 
     def file(self, file_id: str) -> UploadedFile | None:
         return next((item for item in self.files if item.id == file_id), None)
@@ -58,6 +66,7 @@ class Tool:
     parameters: dict
     handler: ToolHandler
     ends_turn: bool = False
+    risk: str = "read"
 
     @property
     def definition(self) -> dict:
@@ -65,21 +74,46 @@ class Tool:
 
 
 class ToolRegistry:
-    def __init__(self) -> None:
+    def __init__(self, hooks: Sequence["ToolHook"] = ()) -> None:
         self._tools: dict[str, Tool] = {}
+        self.install_hooks(hooks)
+
+    def install_hooks(self, hooks: Sequence["ToolHook"]) -> None:
+        """Compose the dispatch chain. Called from the package __init__ so that
+        hooks can import this module without a cycle."""
+        from .hooks import compose
+
+        self._hooks = tuple(hooks)
+        self._chain: "Next" = compose(self._hooks, self._invoke)
+
+    @property
+    def hooks(self) -> tuple["ToolHook", ...]:
+        return self._hooks
 
     def definitions(self) -> list[dict]:
         return [tool.definition for tool in self._tools.values()]
 
     def dispatch(self, name: str, args: dict, context: ToolContext) -> dict:
-        """Run one tool, turning an HTTPException into the error shape the model can act on."""
+        """The one chokepoint every execution path traverses, hooks included."""
+        from .hooks import MAX_DISPATCH_DEPTH, ToolInvocation
+
         tool = self._tools.get(name)
         if not tool:
-            return {"error": f"Unknown tool {name}"}
+            return tool_error(ErrorCode.INVALID_INPUT, f"Unknown tool {name}")
+        budget = context.budget
+        if budget.depth >= MAX_DISPATCH_DEPTH:
+            raise RuntimeError("Nested tool dispatch is not allowed; a hook must not call another tool")
+        budget.depth += 1
         try:
-            return tool.handler(args, context)
+            return self._chain(ToolInvocation(tool=tool, args=args, context=context))
+        finally:
+            budget.depth -= 1
+
+    def _invoke(self, invocation: "ToolInvocation") -> dict:
+        try:
+            return invocation.tool.handler(invocation.args, invocation.context)
         except HTTPException as exc:
-            return {"error": str(exc.detail), "retryable": True}
+            return error_from_http_exception(exc)
 
     def ends_turn(self, name: str) -> bool:
         tool = self._tools.get(name)
@@ -101,14 +135,14 @@ class ToolRegistry:
 registry = ToolRegistry()
 
 
-def tool(*, name: str, description: str, properties: dict | None = None, required: list[str] | None = None, ends_turn: bool = False):
+def tool(*, name: str, description: str, properties: dict | None = None, required: list[str] | None = None, ends_turn: bool = False, risk: str = "read"):
     """Declare a tool and register it. The decorated function stays directly callable."""
 
     def decorate(handler: ToolHandler) -> ToolHandler:
         parameters = {"type": "object", "properties": properties or {}}
         if required:
             parameters["required"] = required
-        registry.register(Tool(name=name, description=description, parameters=parameters, handler=handler, ends_turn=ends_turn))
+        registry.register(Tool(name=name, description=description, parameters=parameters, handler=handler, ends_turn=ends_turn, risk=risk))
         return handler
 
     return decorate

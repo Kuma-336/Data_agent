@@ -9,3 +9,4 @@ backend/test-data/
 backend/.venv/
 backend/*.egg-info/
 **/__pycache__/
+.env.bak.*

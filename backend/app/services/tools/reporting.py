@@ -15,6 +15,7 @@ from .registry import ToolContext, string, tool
     ),
     properties={"title": string(), "blocks": {"type": "array", "items": {"type": "object"}}},
     required=["title", "blocks"],
+    risk="write",
 )
 def create_report(args: dict, context: ToolContext) -> dict:
     report = save_report(context.db, context.user, args["title"], args["blocks"], context.chat.id)

@@ -56,6 +56,7 @@ def execute_query(sql: str, allowed_tables: list[str], max_rows: int) -> tuple[l
 
     connection = duckdb.connect(str(database_path()), read_only=True)
     try:
+        _apply_timeout(connection)
         result = connection.execute(sql)
         columns = [item[0] for item in result.description]
         rows = [dict(zip(columns, row, strict=True)) for row in result.fetchmany(max_rows)]
@@ -64,3 +65,11 @@ def execute_query(sql: str, allowed_tables: list[str], max_rows: int) -> tuple[l
         raise HTTPException(400, f"jaffle_shop query failed: {exc}") from exc
     finally:
         connection.close()
+
+
+def _apply_timeout(connection) -> None:
+    """DuckDB has no statement timeout of its own; bound it like the Postgres path."""
+    try:
+        connection.execute(f"SET statement_timeout = '{int(settings.local_query_timeout_seconds)}s'")
+    except Exception:
+        pass

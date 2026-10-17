@@ -11,16 +11,15 @@ from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..models import AgentRun, Chat, DataSource, ProjectContextDocument, UploadedFile, User
+from .approvals import granted_fingerprints, record_request
 from .conversation import load_model_history
 from .jaffle_shop import list_tables as list_jaffle_shop_tables
 from .memory_manager import active_memories
 from .prompt import build_system_prompt, database_context
 from .runs import add_step, record_usage
-from .tools import ToolContext, registry
+from .tools import Budget, HookDecision, ToolContext, registry, resolve_policy
 
 ToolEvent = dict[str, object]
-
-MAX_ITERATIONS = 8
 
 
 def run_agent(
@@ -35,6 +34,7 @@ def run_agent(
     jaffle_shop_table_names: list[str] | None = None,
 ) -> tuple[str, list[ToolEvent]]:
     files, sources, sample_tables = _resolve_resources(db, user, file_ids, connection_ids, jaffle_shop_table_names or [])
+    policy = resolve_policy(db, user)
     context = ToolContext(
         db=db,
         user=user,
@@ -42,13 +42,16 @@ def run_agent(
         files=files,
         sources=sources,
         jaffle_shop_tables=jaffle_shop_table_names or [],
+        budget=Budget(policy=policy, approvals=granted_fingerprints(db, user.id, chat.id)),
     )
+    if run:
+        add_step(db, run, "policy", "tool_policy", {"resources": run.resources}, policy.as_dict())
     messages = _initial_messages(db, user, chat, user_text, files, sources, sample_tables)
-    client = OpenAI(base_url=settings.llm_base_url, api_key=settings.llm_api_key)
+    client = OpenAI(base_url=settings.llm_base_url, api_key=settings.llm_api_key, timeout=settings.llm_timeout_seconds)
     definitions = registry.definitions()
     events: list[ToolEvent] = []
 
-    for _ in range(MAX_ITERATIONS):
+    for _ in range(policy.max_iterations):
         started = perf_counter()
         response = client.chat.completions.create(model=settings.llm_model, messages=messages, tools=definitions, tool_choice="auto")
         _record_model_step(db, run, response.usage, len(events), len(definitions), started)
@@ -60,7 +63,8 @@ def run_agent(
             args = json.loads(call.function.arguments)
             result = _call_tool(db, run, context, call.function.name, args, events, emit)
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result, ensure_ascii=False, default=str)})
-            if registry.ends_turn(call.function.name):
+            # A failed turn-ending call must not end the turn, or the user gets nothing back.
+            if registry.ends_turn(call.function.name) and not result.get("error"):
                 return "", events
     return "I stopped after the maximum number of tool calls.", events
 
@@ -112,6 +116,8 @@ def _call_tool(
 ) -> dict:
     started = perf_counter()
     result = registry.dispatch(name, args, context)
+    # Drained before the tool step so hook decisions order ahead of the call they shaped.
+    _record_hook_decisions(db, run, context, name)
     event = {"name": name, "input": args, "output": result}
     events.append(event)
     if run:
@@ -119,6 +125,26 @@ def _call_tool(
         add_step(db, run, "tool", name, args, result, error=error, duration_ms=_elapsed_ms(started))
     emit("tool", event)
     return result
+
+
+def _record_hook_decisions(db: Session, run: AgentRun | None, context: ToolContext, tool_name: str) -> None:
+    for decision in context.budget.drain():
+        if decision.action == "approval_required":
+            record_request(db, context.user, context.chat.id, run, tool_name, decision.detail["fingerprint"], decision.detail.get("args", {}))
+        if run:
+            add_step(
+                db,
+                run,
+                "hook",
+                decision.hook,
+                {"tool": decision.tool, **_without_args(decision)},
+                {"action": decision.action, "code": decision.code},
+                error=decision.detail.get("reason") if decision.action == "deny" else None,
+            )
+
+
+def _without_args(decision: HookDecision) -> dict:
+    return {key: value for key, value in decision.detail.items() if key != "args"}
 
 
 def _record_model_step(db: Session, run: AgentRun | None, usage: object, iteration: int, tool_count: int, started: float) -> None:
