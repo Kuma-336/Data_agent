@@ -16,7 +16,7 @@ from .errors import ApiError, normalize_error
 from .models import AgentRun, ChartArtifact, Chat, DataProfile, DataSource, EvalCase, EvalCaseResult, EvalRun, EvalSuite, ExportArtifact, Memory, Message, MessagePart, PendingApproval, ProjectContextDocument, QueryResult, Report, ReportVersion, UploadedFile, User
 from .schemas import ChatCreate, ChatMessageInput, DataSourceInput, DataSourceOut, LoginInput, RegisterInput, UserOut
 from .security import create_access_token, create_mcp_token, decode_mcp_token, decrypt_secret, encrypt_secret, hash_password, verify_password
-from .services.agent import run_agent
+from .services.agent import iter_agent, run_agent
 from .services.storage import save_upload
 from .worker import compact_chat, extract_memory, run_eval
 from .services.conversation import save_parts
@@ -274,15 +274,17 @@ def send_message(chat_id: str, payload: ChatMessageInput, user: User = Depends(c
     run = start_run(db, user.id, chat.id, user_message.id, payload.content, payload.file_ids, payload.connection_ids, payload.jaffle_shop_tables)
 
     def stream():
-        emitted: list[tuple[str, dict]] = []
-        def emit(kind: str, data: dict) -> None:
-            emitted.append((kind, data))
         try:
-            emitted.append(("tool", {"name": "execution_plan", "input": {}, "output": {"run_id": run.id, "steps": run.plan}}))
-            answer, events = run_agent(db, user, chat, payload.content, payload.file_ids, payload.connection_ids, emit, run, payload.jaffle_shop_tables)
+            yield _sse("tool", {"name": "execution_plan", "input": {}, "output": {"run_id": run.id, "steps": run.plan}})
+            answer = ""
+            events: list[dict] = []
+            for kind, data in iter_agent(db, user, chat, payload.content, payload.file_ids, payload.connection_ids, run, payload.jaffle_shop_tables):
+                if kind == "tool":
+                    events.append(data)
+                    yield _sse("tool", data)
+                elif kind == "answer":
+                    answer = str(data["content"])
             verifier = verify_run(db, run, answer, events)
-            for kind, data in emitted:
-                yield _sse(kind, data)
             assistant = Message(chat_id=chat.id, role="assistant", content=answer, tool_events=events)
             db.add(assistant)
             db.flush()
@@ -304,7 +306,7 @@ def send_message(chat_id: str, payload: ChatMessageInput, user: User = Depends(c
             except Exception:
                 # A temporary Redis failure must not fail a successfully completed answer.
                 pass
-    return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+    return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 @app.get("/chats/{chat_id}/runs")
@@ -409,7 +411,7 @@ def replay_agent_run(run_id: str, payload: dict, user: User = Depends(current_us
     message = Message(chat_id=chat.id, role="user", content=source.prompt); db.add(message); db.flush(); save_parts(db, message, source.prompt); db.commit()
     sample_tables = list(source.resources.get("jaffle_shop_tables", []))
     replay = start_run(db, user.id, chat.id, message.id, source.prompt, file_ids, connection_ids, sample_tables, parent_run_id=source.id)
-    answer, events = run_agent(db, user, chat, source.prompt, file_ids, connection_ids, lambda _kind, _data: None, replay, sample_tables)
+    answer, events = run_agent(db, user, chat, source.prompt, file_ids, connection_ids, replay, sample_tables)
     verifier = verify_run(db, replay, answer, events)
     assistant = Message(chat_id=chat.id, role="assistant", content=answer, tool_events=events); db.add(assistant); db.flush(); save_parts(db, assistant, answer, events); db.commit()
     return {"chat_id": chat.id, "run": serialize_run(db, replay), "answer": answer, "verifier": verifier}

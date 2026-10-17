@@ -72,7 +72,7 @@ def _ask_agent(db: Session, user: User, args: dict) -> dict:
     files, connections = list(args.get("file_ids") or []), list(args.get("connection_ids") or [])
     message = Message(chat_id=chat.id, role="user", content=question)
     db.add(message); db.flush(); save_parts(db, message, question); db.commit()
-    answer, events = run_agent(db, user, chat, question, files, connections, lambda _kind, _data: None)
+    answer, events = run_agent(db, user, chat, question, files, connections)
     assistant = Message(chat_id=chat.id, role="assistant", content=answer, tool_events=events)
     db.add(assistant); db.flush(); save_parts(db, assistant, answer, events); db.commit()
     return {"chat_id": chat.id, "answer": answer, "tool_events": events, "chat_url": f"/chats/{chat.id}"}

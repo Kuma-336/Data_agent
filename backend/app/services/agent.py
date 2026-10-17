@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Iterator
 from time import perf_counter
 
 from openai import OpenAI
@@ -29,10 +29,35 @@ def run_agent(
     user_text: str,
     file_ids: list[str],
     connection_ids: list[str],
-    emit: Callable[[str, dict], None],
     run: AgentRun | None = None,
     jaffle_shop_table_names: list[str] | None = None,
 ) -> tuple[str, list[ToolEvent]]:
+    """Drain the event stream for callers that only want the final result."""
+    answer = ""
+    events: list[ToolEvent] = []
+    for kind, data in iter_agent(db, user, chat, user_text, file_ids, connection_ids, run, jaffle_shop_table_names):
+        if kind == "tool":
+            events.append(data)
+        elif kind == "answer":
+            answer = str(data["content"])
+    return answer, events
+
+
+def iter_agent(
+    db: Session,
+    user: User,
+    chat: Chat,
+    user_text: str,
+    file_ids: list[str],
+    connection_ids: list[str],
+    run: AgentRun | None = None,
+    jaffle_shop_table_names: list[str] | None = None,
+) -> Iterator[tuple[str, dict]]:
+    """Yield each tool event as it completes, then one terminal `answer` event.
+
+    A generator rather than a callback plus a thread: the caller and the loop
+    share one SQLAlchemy Session, which is not thread-safe.
+    """
     files, sources, sample_tables = _resolve_resources(db, user, file_ids, connection_ids, jaffle_shop_table_names or [])
     policy = resolve_policy(db, user)
     context = ToolContext(
@@ -57,16 +82,20 @@ def run_agent(
         _record_model_step(db, run, response.usage, len(events), len(definitions), started)
         message = response.choices[0].message
         if not message.tool_calls:
-            return message.content or "I could not produce an answer.", events
+            yield "answer", {"content": message.content or "I could not produce an answer."}
+            return
         messages.append(message.model_dump(exclude_none=True))
         for call in message.tool_calls:
             args = json.loads(call.function.arguments)
-            result = _call_tool(db, run, context, call.function.name, args, events, emit)
+            result, event = _call_tool(db, run, context, call.function.name, args)
+            events.append(event)
+            yield "tool", event
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result, ensure_ascii=False, default=str)})
             # A failed turn-ending call must not end the turn, or the user gets nothing back.
             if registry.ends_turn(call.function.name) and not result.get("error"):
-                return "", events
-    return "I stopped after the maximum number of tool calls.", events
+                yield "answer", {"content": ""}
+                return
+    yield "answer", {"content": "I stopped after the maximum number of tool calls."}
 
 
 def _resolve_resources(
@@ -105,26 +134,15 @@ def _initial_messages(
     return messages
 
 
-def _call_tool(
-    db: Session,
-    run: AgentRun | None,
-    context: ToolContext,
-    name: str,
-    args: dict,
-    events: list[ToolEvent],
-    emit: Callable[[str, dict], None],
-) -> dict:
+def _call_tool(db: Session, run: AgentRun | None, context: ToolContext, name: str, args: dict) -> tuple[dict, ToolEvent]:
     started = perf_counter()
     result = registry.dispatch(name, args, context)
     # Drained before the tool step so hook decisions order ahead of the call they shaped.
     _record_hook_decisions(db, run, context, name)
-    event = {"name": name, "input": args, "output": result}
-    events.append(event)
     if run:
         error = str(result.get("error")) if isinstance(result, dict) and result.get("error") else None
         add_step(db, run, "tool", name, args, result, error=error, duration_ms=_elapsed_ms(started))
-    emit("tool", event)
-    return result
+    return result, {"name": name, "input": args, "output": result}
 
 
 def _record_hook_decisions(db: Session, run: AgentRun | None, context: ToolContext, tool_name: str) -> None:

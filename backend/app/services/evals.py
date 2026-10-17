@@ -85,7 +85,7 @@ def _run_case(db: Session, user: User, eval_run: EvalRun, case: EvalCase) -> Eva
     message = Message(chat_id=chat.id, role="user", content=case.prompt); db.add(message); db.flush(); save_parts(db, message, case.prompt); db.commit()
     run = start_run(db, user.id, chat.id, message.id, case.prompt, file_ids, connection_ids)
     try:
-        answer, events = run_agent(db, user, chat, case.prompt, file_ids, connection_ids, lambda _kind, _data: None, run)
+        answer, events = run_agent(db, user, chat, case.prompt, file_ids, connection_ids, run)
         verifier = verify_run(db, run, answer, events)
         actual_ids = [event["output"].get("query_id") for event in events if event.get("name") == "execute_sql" and isinstance(event.get("output"), dict) and event["output"].get("query_id")]
         actual = db.get(QueryResult, actual_ids[-1]) if actual_ids else None
