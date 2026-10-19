@@ -188,3 +188,44 @@ def test_a_profile_with_unhashable_columns_still_renders():
     assert "**Duplicate rows in sample:** not computable for these column types" in document
     assert '"name": "resources"' in document
     assert "**Columns:** 2" in document
+
+
+def test_attaching_a_sample_table_syncs_its_context_on_first_use():
+    """Without this the sample tables have no columns document, and the prompt
+    tells the model to read one that nothing ever generated."""
+    from app.db import SessionLocal
+    from app.models import User as UserModel
+    from app.services.agent import _resolve_resources
+
+    with SessionLocal() as db:
+        user = UserModel(email="lazysync@example.com", password_hash="x")
+        db.add(user); db.commit(); db.refresh(user)
+        target = context_store.sample_target(user.id)
+        assert context_store.list_tables(target) == []
+
+        _, _, sample_tables = _resolve_resources(db, user, [], [], ["orders"])
+
+        assert [item["name"] for item in sample_tables] == ["orders"]
+        synced = {item["table"] for item in context_store.list_tables(target)}
+        assert "orders" in synced
+        assert "columns" in dict((i["table"], i["documents"]) for i in context_store.list_tables(target))["orders"]
+
+
+def test_the_model_is_told_the_columns_of_an_attached_sample_table():
+    """End to end: after the lazy sync the prompt names the table's documents
+    instead of 'No context documents synced yet'."""
+    from app.db import SessionLocal
+    from app.models import User as UserModel
+    from app.services.agent import _resolve_resources
+    from app.services.prompt import build_system_prompt, database_context
+
+    with SessionLocal() as db:
+        user = UserModel(email="promptsync@example.com", password_hash="x")
+        db.add(user); db.commit(); db.refresh(user)
+        _, _, sample_tables = _resolve_resources(db, user, [], [], ["orders"])
+        prompt = build_system_prompt([], [], [], [], sample_tables, database_context(user, [], [], True))
+
+    assert "No context documents synced yet" not in prompt
+    assert "orders (columns, profiling, preview)" in prompt
+    # The hard rule now offers a way out when a document really is missing.
+    assert "discover the shape yourself" in prompt

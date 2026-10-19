@@ -117,3 +117,24 @@ def test_eval_fixture_import_is_validated_and_idempotent():
         detail = client.get(f"/eval-suites/{first.json()['id']}").json()
         assert detail["cases"][0]["case_key"] == "T001"
         assert detail["cases"][0]["acceptance"]["max_tool_calls"] == 2
+
+
+def test_an_exhausted_provider_balance_is_reported_as_such():
+    """A 402 used to surface as a generic rejection, which hid the real cause."""
+    import httpx
+    from openai import APIStatusError
+
+    from app.errors import normalize_error
+
+    def _status_error(status: int) -> APIStatusError:
+        request = httpx.Request("POST", "https://api.example.test/chat")
+        response = httpx.Response(status, request=request, json={"error": {"message": "boom"}})
+        return APIStatusError("boom", response=response, body=None)
+
+    insufficient = normalize_error(_status_error(402))
+    assert insufficient.code == "LLM_INSUFFICIENT_BALANCE"
+    assert "balance" in insufficient.message.lower()
+
+    other = normalize_error(_status_error(422))
+    assert other.code == "LLM_REQUEST_FAILED"
+    assert "422" in other.message

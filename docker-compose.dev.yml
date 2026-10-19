@@ -1,0 +1,41 @@
+# Development overrides: source is mounted, so editing a file is enough.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# The backend needs no build at all: its source is mounted over the existing
+# image. Only `web` builds, and only on the first run. After that:
+#   backend  (app/**.py)  — uvicorn reloads on its own, nothing to do
+#   frontend (src/**)     — vite hot-reloads, nothing to do
+#   worker   (app/**.py)  — docker compose ... restart worker  (dramatiq has no reloader)
+#
+# A rebuild is still required when pyproject.toml dependencies, package.json or
+# a Dockerfile change. Changing .env or compose environment needs only
+# `up -d --force-recreate api worker`.
+#
+# Compose merges `volumes` by container path, so the base file's app_data and
+# jaffle_shop mounts are kept and these are added to them.
+services:
+  api:
+    # No build override: the runtime image already carries every dependency, and
+    # uvicorn puts its --app-dir (".", i.e. /app) ahead of site-packages, so the
+    # mounted source is what actually runs. Avoiding a rebuild here is the whole
+    # point, and it keeps this usable when the package index is unreachable.
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/app
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/tests:/app/tests
+
+  worker:
+    volumes:
+      - ./backend/app:/app/app
+
+  web:
+    build:
+      context: ./frontend
+      target: build
+    # Vite serves on 80 so the base file's 5173:80 mapping still applies, and
+    # the HMR socket follows the port the page was loaded from.
+    command: npm run dev -- --port 80
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html

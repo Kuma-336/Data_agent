@@ -47,10 +47,19 @@ def error_from_http_exception(exc: HTTPException) -> dict:
 
 
 def error_code(result: object) -> ErrorCode | None:
-    """The code carried by a failed tool result, or None if it did not fail."""
+    """The code a failed tool result declares.
+
+    None means "no failure, or a failure we cannot classify". Both must stay out
+    of AUTO_RETRY: a handler returning a bare {"error": ...} is reporting a
+    deterministic refusal such as a missing document or an unattached resource,
+    and re-running it produces the same refusal.
+    """
     if not isinstance(result, dict) or not result.get("error"):
         return None
+    declared = result.get("code")
+    if declared is None:
+        return None
     try:
-        return ErrorCode(result.get("code", ErrorCode.RETRYABLE))
+        return ErrorCode(declared)
     except ValueError:
-        return ErrorCode.RETRYABLE
+        return None

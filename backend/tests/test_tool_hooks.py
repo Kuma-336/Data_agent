@@ -372,3 +372,30 @@ def test_hook_decisions_are_persisted_as_agent_steps():
         assert steps[0].output == {"action": "deny", "code": str(ErrorCode.PERMISSION_DENIED)}
         assert steps[0].status == "failed"
         assert context.budget.trail == []
+
+
+def test_an_unclassified_error_is_never_auto_retried():
+    """Handlers returning a bare {"error": ...} report deterministic refusals;
+    re-running them produces the same refusal and only spends budget."""
+    attempts = []
+
+    def refusing(args, ctx):
+        attempts.append(1)
+        return {"error": "No columns document for table orders"}
+
+    context = _context(_policy(max_auto_retries=3))
+    result = _run((RetryHook(),), _tool(refusing), {}, context)
+
+    assert len(attempts) == 1
+    assert context.budget.trail == []
+    assert result == {"error": "No columns document for table orders"}
+
+
+def test_error_code_classifies_only_what_a_result_declares():
+    from app.services.tools.errors import error_code
+
+    assert error_code({"ok": True}) is None
+    assert error_code({"error": "boom"}) is None
+    assert error_code({"error": "boom", "code": "nonsense"}) is None
+    assert error_code(tool_error(ErrorCode.RETRYABLE, "boom")) is ErrorCode.RETRYABLE
+    assert not any(error_code(r) in AUTO_RETRY for r in ({"error": "boom"}, {"error": "boom", "code": "nonsense"}))

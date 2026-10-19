@@ -22,7 +22,9 @@ def normalize_error(error: Exception) -> ApiError:
     if isinstance(error, APIConnectionError):
         return ApiError("LLM_UNREACHABLE", "The configured LLM endpoint could not be reached.", "Check LLM_BASE_URL and outbound network access, then retry.", 502)
     if isinstance(error, APIStatusError):
-        return ApiError("LLM_REQUEST_FAILED", "The configured LLM rejected the request.", "Check LLM_MODEL and provider account status, then inspect api logs.", 502)
+        if error.status_code == 402:
+            return ApiError("LLM_INSUFFICIENT_BALANCE", "The configured LLM provider reports an insufficient balance.", "Top up the provider account, then retry the question.", 502)
+        return ApiError("LLM_REQUEST_FAILED", f"The configured LLM rejected the request ({error.status_code}).", "Check LLM_MODEL and provider account status, then inspect api logs.", 502)
     if isinstance(error, HTTPException):
         return ApiError("REQUEST_FAILED", str(error.detail), "Correct the request and retry.", error.status_code)
     return ApiError("INTERNAL_ERROR", "The analysis request failed unexpectedly.", "Inspect `docker compose logs api` using the request timestamp.", 500)
