@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 from ..config import settings
 from ..models import AgentRun, Chat, DataSource, ProjectContextDocument, UploadedFile, User
 from .approvals import granted_fingerprints, record_request
+from . import context_store
+from .context_sync import sync_sample_context
 from .conversation import load_model_history
 from .jaffle_shop import list_tables as list_jaffle_shop_tables
 from .memory_manager import active_memories
@@ -87,7 +89,7 @@ def iter_agent(
         messages.append(message.model_dump(exclude_none=True))
         for call in message.tool_calls:
             args = json.loads(call.function.arguments)
-            result, event = _call_tool(db, run, context, call.function.name, args)
+            result, event = _call_tool(db, run, context, call.function.name, args, call.id)
             events.append(event)
             yield "tool", event
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result, ensure_ascii=False, default=str)})
@@ -111,7 +113,25 @@ def _resolve_resources(
     available = {item["name"]: item for item in list_jaffle_shop_tables()}
     if any(name not in available for name in jaffle_shop_table_names):
         raise ValueError("One or more selected jaffle_shop tables are not available")
+    _ensure_sample_context(user)
     return files, sources, [available[name] for name in jaffle_shop_table_names]
+
+
+def _ensure_sample_context(user: User) -> None:
+    """Sync the sample database the first time a user attaches it.
+
+    It is eight read-only tables in a local file, so it belongs in the request
+    path; a warehouse connection does not, which is why that one stays an
+    explicit endpoint. Without this the tables have no columns document and the
+    model is told to read one that was never generated.
+    """
+    if context_store.list_tables(context_store.sample_target(user.id)):
+        return
+    try:
+        sync_sample_context(user.id)
+    except Exception:
+        # Context is a read-time optimisation; never fail the turn over it.
+        pass
 
 
 def _initial_messages(
@@ -134,7 +154,7 @@ def _initial_messages(
     return messages
 
 
-def _call_tool(db: Session, run: AgentRun | None, context: ToolContext, name: str, args: dict) -> tuple[dict, ToolEvent]:
+def _call_tool(db: Session, run: AgentRun | None, context: ToolContext, name: str, args: dict, tool_call_id: str | None = None) -> tuple[dict, ToolEvent]:
     started = perf_counter()
     result = registry.dispatch(name, args, context)
     # Drained before the tool step so hook decisions order ahead of the call they shaped.
@@ -142,7 +162,7 @@ def _call_tool(db: Session, run: AgentRun | None, context: ToolContext, name: st
     if run:
         error = str(result.get("error")) if isinstance(result, dict) and result.get("error") else None
         add_step(db, run, "tool", name, args, result, error=error, duration_ms=_elapsed_ms(started))
-    return result, {"name": name, "input": args, "output": result}
+    return result, {"name": name, "input": args, "output": result, "tool_call_id": tool_call_id}
 
 
 def _record_hook_decisions(db: Session, run: AgentRun | None, context: ToolContext, tool_name: str) -> None:
